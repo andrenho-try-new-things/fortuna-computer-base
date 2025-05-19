@@ -8,13 +8,15 @@
 - [ ] Text framebuffer + color
   - [ ] Draw pixel
   - [ ] Framebuffer
+- [ ] Schematic
 
 ## Version 0.2
 
-- [ ] Schematic
-- [ ] Build circuit
 - [ ] SD Card
-- [ ] Real-time clock
+- [ ] Real-time clock + battery
+- [ ] Audio (?)
+- [ ] Extra SPI port
+- [ ] Build circuit
 
 ## Version 0.3
 

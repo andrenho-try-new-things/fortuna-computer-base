@@ -35,14 +35,15 @@ pico_sdk_init()
 add_executable(${CMAKE_PROJECT_NAME})
 
 # must match with pio filename and executable name from above
-pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/vga/hsync.pio)
-pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/vga/vsync.pio)
-pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/vga/rgb.pio)
+pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/vga/pio/hsync.pio)
+pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/vga/pio/vsync.pio)
+pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/vga/pio/rgb.pio)
 
 # must match with executable name and source file names
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
-	vga16_graphics_font.c
-	vga/vga16_graphics.c
+	#vga16_graphics_font.c
+		main.cc
+		vga/vga.cc
 )
 
 # must match with executable name
