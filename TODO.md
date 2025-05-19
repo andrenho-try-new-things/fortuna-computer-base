@@ -6,8 +6,9 @@
 - [x] Font generator
   - [x] Application to generate font to .h
 - [ ] Text framebuffer + color
-  - [ ] Draw characters
-  - [ ] Framebuffer
+  - [x] Draw characters
+  - [x] Framebuffer
+  - [ ] Line feed
   - [ ] Use callbacks to blink cursor
 - [ ] Schematic
 
