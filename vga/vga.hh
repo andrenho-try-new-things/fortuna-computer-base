@@ -2,7 +2,7 @@
 #define VGA_H_
 
 #include "fb.hh"
-#include "fontgen/ibm_font.h"
+#include "text.hh"
 
 namespace vga {
 

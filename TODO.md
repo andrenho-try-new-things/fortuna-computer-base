@@ -1,13 +1,14 @@
 ## Version 0.1
 
-- [ ] VGA simple framebuffer (640x480)
-  - [ ] Remove excess code
-  - [ ] Draw single pixel
-- [ ] Font generator
-  - [ ] Application to generate font to .h
+- [x] VGA simple framebuffer (640x480)
+  - [x] Remove excess code
+  - [x] Draw single pixel
+- [x] Font generator
+  - [x] Application to generate font to .h
 - [ ] Text framebuffer + color
-  - [ ] Draw pixel
+  - [ ] Draw characters
   - [ ] Framebuffer
+  - [ ] Use callbacks to blink cursor
 - [ ] Schematic
 
 ## Version 0.2

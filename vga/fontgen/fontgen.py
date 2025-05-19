@@ -43,9 +43,10 @@ def bitmap_to_cheader(image_path, cell_width, cell_height, horizontal_cells, ini
         f.write(f"#ifndef {base_name.upper()}_FONT_H\n")
         f.write(f"#define {base_name.upper()}_FONT_H\n\n")
         f.write("#include <stdint.h>\n\n")
-        f.write("#include <pico/platform.h>\n\n")
+        f.write("#include <pico.h>\n\n")
 
         # Write font metadata
+        f.write(f"static const uint8_t {base_name.lower()}_font_width = {cell_width};\n")
         f.write(f"static const uint8_t {base_name.lower()}_font_height = {cell_height};\n")
         f.write(f"static const uint8_t {base_name.lower()}_font_first_char = {initial_char};\n")
         f.write(f"static const uint8_t {base_name.lower()}_font_last_char = {initial_char + total_cells - 1};\n\n")
@@ -92,7 +93,7 @@ def bitmap_to_cheader(image_path, cell_width, cell_height, horizontal_cells, ini
 
                     # Write byte value with visual comment
                     visual_comment = "".join(row_visual)
-                    f.write(f"        (uint8_t) 0x{byte_value:08b}, // {visual_comment}\n")
+                    f.write(f"        0b{byte_value:08b}, // {visual_comment}\n")
 
                 f.write("    },\n")
                 char_index += 1

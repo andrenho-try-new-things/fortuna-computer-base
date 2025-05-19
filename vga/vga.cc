@@ -133,6 +133,8 @@ void init()
     // To change the contents of the screen, we need only change the contents
     // of that array.
     dma_start_channel_mask((1u << rgb_chan_0)) ;
+
+    text::init();
 }
 
 }

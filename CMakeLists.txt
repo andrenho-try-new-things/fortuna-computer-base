@@ -20,6 +20,9 @@ cmake_minimum_required(VERSION 3.13)
 
 set(PICO_BOARD pico2 CACHE STRING "Board type")
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 # include the sdk.cmake file
 include(pico_sdk_import.cmake)
 
@@ -37,7 +40,9 @@ add_executable(${CMAKE_PROJECT_NAME}
 		vga/vga.hh
 		vga/vga.cc
 		vga/fb.cc
-		vga/fb.hh)
+		vga/fb.hh
+		vga/text.cc
+		vga/text.hh)
 
 # must match with pio filename and executable name from above
 pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/vga/pio/hsync.pio)
@@ -59,7 +64,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
 # must match with executable name
 pico_add_extra_outputs(${CMAKE_PROJECT_NAME})
 
-add_compile_options(-O3 )
+add_compile_options(-O3)
 
 add_custom_target(upload-remote
 		COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/pico-pi-upload-client.sh $ENV{REMOTE_URL} rp2350 ${CMAKE_PROJECT_NAME}.elf
