@@ -27,7 +27,7 @@
 // ==========================================
 // === VGA graphics library
 // ==========================================
-#include "vga16_graphics.h"
+#include "vga/vga16_graphics.h"
 #include <stdio.h>
 #include <stdlib.h>
 // #include <math.h>
@@ -48,7 +48,7 @@
 #include "pico/multicore.h"
 #include "string.h"
 // protothreads header
-#include "../pt_cornell_rp2040_v1_3.h"
+#include "pt_cornell_rp2040_v1_3.h"
 
 char user_string[40] = "Type up to 40 characters" ;
 int new_str = 1;

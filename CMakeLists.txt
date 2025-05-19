@@ -41,7 +41,7 @@ pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/vga/rgb
 
 # must match with executable name and source file names
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
-	vga/vga16_graphics_font.c
+	vga16_graphics_font.c
 	vga/vga16_graphics.c
 )
 
