@@ -22,7 +22,7 @@ void draw_pixel(uint16_t x, uint16_t y, Color color)
         vga_data_array[pixel>>1] = (vga_data_array[pixel>>1] & BOTTOMMASK) | ((uint8_t) color) ;
 }
 
-void draw_from_byte(uint8_t byte, uint8_t n_bytes, uint8_t x, uint8_t y, Color bg_color, Color fg_color)
+void draw_from_byte(uint8_t byte, uint8_t n_bytes, uint16_t x, uint16_t y, Color bg_color, Color fg_color)
 {
     for (int m = 0; m < n_bytes; ++m) {
         uint8_t v = byte & (1 << (n_bytes - m));

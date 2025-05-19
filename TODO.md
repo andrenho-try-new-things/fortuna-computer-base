@@ -9,6 +9,8 @@
   - [x] Draw characters
   - [x] Framebuffer
   - [x] Use callbacks to blink cursor
+  - [x] Many chars
+  - [ ] Deal with ENTER
   - [ ] Line feed
 - [ ] Schematic
 
