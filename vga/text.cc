@@ -1,5 +1,7 @@
 #include "text.hh"
 
+#include <pico/time.h>
+
 #include "fb.hh"
 #include "ibm_font.h"
 
@@ -10,9 +12,14 @@ static uint16_t cursor_y = 0;
 static Color    fg_color = Color::White;
 static Color    bg_color = Color::Black;
 
-static const uint16_t WIDTH = 80;
-static const uint16_t HEIGHT = 40;
-static const uint8_t  CURSOR_CHAR = 127;
+static repeating_timer_t timer;
+static bool              cursor_is_on = true;
+static constexpr uint8_t CURSOR_RESET = 6;
+static uint8_t           cursor_counter = CURSOR_RESET;
+
+static constexpr uint16_t WIDTH = 80;
+static constexpr uint16_t HEIGHT = 40;
+static constexpr uint8_t  CURSOR_CHAR = 127;
 
 struct __attribute__((packed)) TextCell {
     uint8_t c = ' ';
@@ -22,10 +29,6 @@ struct __attribute__((packed)) TextCell {
 };
 
 static TextCell cells[WIDTH * HEIGHT] = {};
-
-void init()
-{
-}
 
 static void add_char(uint8_t c)
 {
@@ -45,6 +48,8 @@ static void add_char(uint8_t c)
 
     if (cursor_y >= HEIGHT)
         /* TODO */;
+
+    cursor_counter = CURSOR_RESET;
 }
 
 static void update()
@@ -64,9 +69,23 @@ static void update()
 
         if (cell_x == cursor_x && cell_y == cursor_y) {
             for (uint8_t y = 0; y < ibm_font_height; ++y)
-                fb::draw_from_byte(ibm_font_data[CURSOR_CHAR - ibm_font_first_char][y], ibm_font_width, cell_x * ibm_font_width, cell_y * ibm_font_height + y, Color::Black, Color::Green);
+                fb::draw_from_byte(cursor_is_on ? ibm_font_data[CURSOR_CHAR - ibm_font_first_char][y] : 0x0,
+                    ibm_font_width, cell_x * ibm_font_width, cell_y * ibm_font_height + y, Color::Black, Color::Green);
         }
     }
+}
+
+void init()
+{
+    add_repeating_timer_ms(100, [](auto*) {
+        --cursor_counter;
+        if (cursor_counter == 0) {
+            cursor_is_on = !cursor_is_on;
+            cursor_counter = CURSOR_RESET;
+            update();
+        }
+        return true;
+    }, nullptr, &timer);
 }
 
 void print(uint8_t c)

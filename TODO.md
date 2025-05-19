@@ -8,12 +8,13 @@
 - [ ] Text framebuffer + color
   - [x] Draw characters
   - [x] Framebuffer
+  - [x] Use callbacks to blink cursor
   - [ ] Line feed
-  - [ ] Use callbacks to blink cursor
 - [ ] Schematic
 
 ## Version 0.2
 
+- [ ] USB keyboard
 - [ ] SD Card
 - [ ] Real-time clock + battery
 - [ ] Audio (?)
