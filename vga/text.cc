@@ -12,6 +12,7 @@ static Color    bg_color = Color::Black;
 
 static const uint16_t WIDTH = 80;
 static const uint16_t HEIGHT = 40;
+static const uint8_t  CURSOR_CHAR = 127;
 
 struct __attribute__((packed)) TextCell {
     uint8_t c = ' ';
@@ -49,15 +50,21 @@ static void add_char(uint8_t c)
 static void update()
 {
     for (int i = 0; i < WIDTH * HEIGHT; ++i) {
+        const int cell_y = i / WIDTH;
+        const int cell_x = i - (cell_y * WIDTH);
+
         if (cells[i].dirty) {
-            const int cell_y = i / WIDTH;
-            const int cell_x = i - (cell_y * WIDTH);
             const int font_idx = cells[i].c - ibm_font_first_char;
             if (font_idx < 0 || cells[i].c > ibm_font_last_char)
                 continue;
             for (uint8_t y = 0; y < ibm_font_height; ++y)
                 fb::draw_from_byte(ibm_font_data[font_idx][y], ibm_font_width, cell_x * ibm_font_width, cell_y * ibm_font_height + y, cells[i].bg_color, cells[i].fg_color);
             cells[i].dirty = false;
+        }
+
+        if (cell_x == cursor_x && cell_y == cursor_y) {
+            for (uint8_t y = 0; y < ibm_font_height; ++y)
+                fb::draw_from_byte(ibm_font_data[CURSOR_CHAR - ibm_font_first_char][y], ibm_font_width, cell_x * ibm_font_width, cell_y * ibm_font_height + y, Color::Black, Color::Green);
         }
     }
 }

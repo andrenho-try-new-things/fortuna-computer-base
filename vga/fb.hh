@@ -7,6 +7,7 @@ extern unsigned char vga_data_array[];
 
 enum class Color : uint8_t {
     Black = 0b0000,
+    Green = 0b0110,
     White = 0b1111,
 };
 
