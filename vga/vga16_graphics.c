@@ -52,7 +52,7 @@ char textcolor, textbgcolor, wrap;
 #define _height 480
 
 void initVGA() {
-        // Choose which PIO instance to use (there are two instances, each with 4 state machines)
+    // Choose which PIO instance to use (there are two instances, each with 4 state machines)
     PIO pio = pio0;
 
     // Our assembled program needs to be loaded into this PIO's instruction
