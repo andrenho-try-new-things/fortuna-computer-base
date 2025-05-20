@@ -13,7 +13,7 @@
   - [x] Deal with ENTER
   - [x] Line feed
 - [x] Better font (deal with multiple fonts)
-- [ ] Schematic
+- [x] Schematic
 
 ## Version 0.2
 
@@ -22,6 +22,8 @@
 - [ ] Real-time clock + battery
 - [ ] Audio (?)
 - [ ] Extra SPI port
+- [ ] UART
+- [ ] Extra button
 - [ ] Build circuit
 
 ## Version 0.3
