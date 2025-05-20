@@ -23,6 +23,7 @@
 - [ ] Audio (?)
 - [ ] Extra SPI port
 - [ ] UART
+- [ ] WiFi/Bluetooth
 - [ ] Extra button
 - [ ] Build circuit
 
