@@ -1,6 +1,6 @@
 #include "text.hh"
 
-#include <string.h>
+#include <cstring>
 #include <pico/time.h>
 
 #include "fb.hh"
@@ -109,6 +109,13 @@ void init()
     }, nullptr, &timer);
 }
 
+void clear_screen()
+{
+    for (auto& cell : cells)
+        cell = TextCell { ' ', fg_color, bg_color, true };
+    update();
+}
+
 void print(uint8_t c)
 {
     add_char(c);
@@ -122,6 +129,28 @@ void print(const char* text)
         text++;
     }
     update();
+}
+
+std::pair<uint16_t, uint16_t> get_cursor()
+{
+    return { cursor_x, cursor_y };
+}
+
+std::pair<Color, Color> get_color()
+{
+    return { bg_color, fg_color };
+}
+
+void set_color(Color bg_color_, Color fg_color_)
+{
+    bg_color = bg_color_;
+    fg_color = fg_color_;
+}
+
+void set_cursor(uint16_t x, uint16_t y)
+{
+    cursor_x = MAX(x, 639);
+    cursor_y = MAX(y, 479);
 }
 
 }
