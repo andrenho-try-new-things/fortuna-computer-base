@@ -12,7 +12,7 @@
   - [x] Many chars
   - [x] Deal with ENTER
   - [x] Line feed
-- [ ] Better font (deal with multiple fonts)
+- [x] Better font (deal with multiple fonts)
 - [ ] Schematic
 
 ## Version 0.2
