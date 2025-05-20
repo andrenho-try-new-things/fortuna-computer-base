@@ -13,7 +13,7 @@ static ibm_font secondary_font;
 
 namespace vga::text {
 
-static Font*   font_data[4] { &default_font, &secondary_font, nullptr, nullptr };
+static Font*   font_data[] { &default_font, &secondary_font };
 static uint8_t current_font = 0;
 
 static uint16_t cursor_x = 0;
@@ -30,7 +30,7 @@ static uint16_t columns = 80;
 static uint16_t rows = 25;
 
 static constexpr uint8_t CURSOR_CHAR = 127;
-static constexpr uint8_t BORDER = 10;
+static constexpr uint8_t V_BORDER = 10;
 
 struct __attribute__((packed)) TextCell {
     uint8_t c = ' ';
@@ -100,21 +100,21 @@ static void redraw()
             if (font_idx < 0 || cells[i].c > font->last_char)
                 continue;
             for (uint8_t y = 0; y < font->char_height; ++y)
-                fb::draw_from_byte(font->pixels(font_idx, y), font->char_width, cell_x * font->char_width + w_border, cell_y * font->char_height + y + BORDER, cells[i].bg_color, cells[i].fg_color);
+                fb::draw_from_byte(font->pixels(font_idx, y), font->char_width, cell_x * font->char_width + w_border, cell_y * font->char_height + y + V_BORDER, cells[i].bg_color, cells[i].fg_color);
             cells[i].dirty = false;
         }
 
         if (cell_x == cursor_x && cell_y == cursor_y) {
             for (uint8_t y = 0; y < font->char_height; ++y)
                 fb::draw_from_byte(cursor_is_on ? font->pixels(CURSOR_CHAR - font->first_char, y) : 0x0,
-                    font->char_width, cell_x * font->char_width + w_border, cell_y * font->char_height + y + BORDER, Color::Black, Color::Green);
+                    font->char_width, cell_x * font->char_width + w_border, cell_y * font->char_height + y + V_BORDER, Color::Black, Color::Green);
         }
     }
 }
 
 void init()
 {
-    set_font(0);
+    set_font(font::Fortuna);
 
     add_repeating_timer_ms(100, [](auto*) {
         --cursor_counter;
@@ -134,18 +134,18 @@ void clear_screen()
     redraw();
 }
 
-void set_font(uint8_t idx)
+void set_font(font f)
 {
-    if (idx < sizeof(font_data) / sizeof(font_data[0])) {
+    if ((uint8_t) f < sizeof(font_data) / sizeof(font_data[0])) {
         clear_screen();
         delete cells;
-        current_font = idx;
-        Font* font = font_data[idx];
+        current_font = (uint8_t) f;
+        Font* font = font_data[(uint8_t) f];
         if (font) {
-            columns = (fb::screen_width() - 2 * BORDER) / font->char_width;
+            columns = fb::screen_width() / font->char_width;
             if (columns > 80)
                 columns = 80;
-            rows = (fb::screen_height() - 2 * BORDER) / font->char_height;
+            rows = (fb::screen_height() - 2 * V_BORDER) / font->char_height;
             cells = new TextCell[columns * rows];
             clear_screen();
         }
