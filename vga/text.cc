@@ -4,7 +4,7 @@
 #include <pico/time.h>
 
 #include "fb.hh"
-#include "ibm_font.h"
+#include "fortuna_font.h"
 
 namespace vga::text {
 
@@ -80,18 +80,18 @@ static void update()
         const int cell_x = i - (cell_y * WIDTH);
 
         if (cells[i].dirty) {
-            const int font_idx = cells[i].c - ibm_font_first_char;
-            if (font_idx < 0 || cells[i].c > ibm_font_last_char)
+            const int font_idx = cells[i].c - fortuna_font_first_char;
+            if (font_idx < 0 || cells[i].c > fortuna_font_last_char)
                 continue;
-            for (uint8_t y = 0; y < ibm_font_height; ++y)
-                fb::draw_from_byte(ibm_font_data[font_idx][y], ibm_font_width, cell_x * ibm_font_width, cell_y * ibm_font_height + y, cells[i].bg_color, cells[i].fg_color);
+            for (uint8_t y = 0; y < fortuna_font_height; ++y)
+                fb::draw_from_byte(fortuna_font_data[font_idx][y], fortuna_font_width, cell_x * fortuna_font_width, cell_y * fortuna_font_height + y, cells[i].bg_color, cells[i].fg_color);
             cells[i].dirty = false;
         }
 
         if (cell_x == cursor_x && cell_y == cursor_y) {
-            for (uint8_t y = 0; y < ibm_font_height; ++y)
-                fb::draw_from_byte(cursor_is_on ? ibm_font_data[CURSOR_CHAR - ibm_font_first_char][y] : 0x0,
-                    ibm_font_width, cell_x * ibm_font_width, cell_y * ibm_font_height + y, Color::Black, Color::Green);
+            for (uint8_t y = 0; y < fortuna_font_height; ++y)
+                fb::draw_from_byte(cursor_is_on ? fortuna_font_data[CURSOR_CHAR - fortuna_font_first_char][y] : 0x0,
+                    fortuna_font_width, cell_x * fortuna_font_width, cell_y * fortuna_font_height + y, Color::Black, Color::Green);
         }
     }
 }
