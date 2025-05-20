@@ -5,13 +5,14 @@
   - [x] Draw single pixel
 - [x] Font generator
   - [x] Application to generate font to .h
-- [ ] Text framebuffer + color
+- [x] Text framebuffer + color
   - [x] Draw characters
   - [x] Framebuffer
   - [x] Use callbacks to blink cursor
   - [x] Many chars
-  - [ ] Deal with ENTER
-  - [ ] Line feed
+  - [x] Deal with ENTER
+  - [x] Line feed
+- [ ] Better font (deal with multiple fonts)
 - [ ] Schematic
 
 ## Version 0.2
