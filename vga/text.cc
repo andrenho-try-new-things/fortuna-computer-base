@@ -26,8 +26,8 @@ static bool              cursor_is_on = true;
 static constexpr uint8_t CURSOR_RESET = 6;
 static uint8_t           cursor_counter = CURSOR_RESET;
 
-static constexpr uint16_t WIDTH = 80;
-static constexpr uint16_t HEIGHT = 33;
+static uint16_t columns = 80;
+static uint16_t rows = 25;
 static constexpr uint8_t  CURSOR_CHAR = 127;
 
 struct __attribute__((packed)) TextCell {
@@ -37,13 +37,13 @@ struct __attribute__((packed)) TextCell {
     bool    dirty = false;
 };
 
-static TextCell cells[WIDTH * HEIGHT] = {};
+static TextCell* cells;
 
 static void line_feed()
 {
-    for (int i = 0; i < WIDTH * HEIGHT; ++i) {
-        if (i < (WIDTH * (HEIGHT - 1))) {
-            cells[i] = cells[i + WIDTH];
+    for (int i = 0; i < columns * rows; ++i) {
+        if (i < (columns * (rows - 1))) {
+            cells[i] = cells[i + columns];
             cells[i].dirty = true;
         } else {
             cells[i] = TextCell { ' ', fg_color, bg_color, true };
@@ -58,7 +58,7 @@ static void add_char(uint8_t c)
         while (cursor_x != 0)
             add_char(' ');
     } else {
-        cells[cursor_x + (cursor_y * WIDTH)] = TextCell {
+        cells[cursor_x + (cursor_y * columns)] = TextCell {
             .c = c,
             .fg_color = fg_color,
             .bg_color = bg_color,
@@ -68,14 +68,14 @@ static void add_char(uint8_t c)
         ++cursor_x;
     }
 
-    if (cursor_x >= WIDTH) {
+    if (cursor_x >= columns) {
         cursor_x = 0;
         ++cursor_y;
     }
 
-    if (cursor_y >= HEIGHT) {
+    if (cursor_y >= rows) {
         line_feed();
-        cursor_y = HEIGHT - 1;
+        cursor_y = rows - 1;
     }
 
     cursor_counter = CURSOR_RESET;
@@ -87,9 +87,9 @@ static void update()
     if (!font)
         return;
 
-    for (int i = 0; i < WIDTH * HEIGHT; ++i) {
-        const int cell_y = i / WIDTH;
-        const int cell_x = i - (cell_y * WIDTH);
+    for (int i = 0; i < columns * rows; ++i) {
+        const int cell_y = i / columns;
+        const int cell_x = i - (cell_y * columns);
 
         if (cells[i].dirty) {
             const int font_idx = cells[i].c - font->first_char;
@@ -110,6 +110,8 @@ static void update()
 
 void init()
 {
+    set_font(0);
+
     add_repeating_timer_ms(100, [](auto*) {
         --cursor_counter;
         if (cursor_counter == 0) {
@@ -123,9 +125,27 @@ void init()
 
 void clear_screen()
 {
-    for (auto& cell : cells)
-        cell = TextCell { ' ', fg_color, bg_color, true };
+    for (size_t i = 0; i < rows * columns; ++i)
+        cells[i] = TextCell { ' ', fg_color, bg_color, true };
     update();
+}
+
+void set_font(uint8_t idx)
+{
+    if (idx < sizeof(font_data) / sizeof(font_data[0])) {
+        clear_screen();
+        delete cells;
+        current_font = idx;
+        Font* font = font_data[idx];
+        if (font) {
+            columns = fb::screen_width() / font->char_width;
+            if (columns > 80)
+                columns = 80;
+            rows = fb::screen_height() / font->char_height;
+            cells = new TextCell[columns * rows];
+            clear_screen();
+        }
+    }
 }
 
 void print(uint8_t c)

@@ -12,6 +12,7 @@ namespace vga::text {
 void init();
 
 void clear_screen();
+void set_font(uint8_t idx);
 
 void print(uint8_t c);
 void print(const char* text);
