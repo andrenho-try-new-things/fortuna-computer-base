@@ -36,24 +36,25 @@ def bitmap_to_cheader(image_path, cell_width, cell_height, horizontal_cells, ini
 
     # Create output header file
     base_name = os.path.splitext(os.path.basename(image_path))[0]
-    header_file = f"{base_name}_font.h"
+    header_file = f"{base_name}_font.hh"
 
     with open(header_file, 'w') as f:
         # Write header guards and includes
         f.write(f"#ifndef {base_name.upper()}_FONT_H\n")
         f.write(f"#define {base_name.upper()}_FONT_H\n\n")
-        f.write("#include <stdint.h>\n\n")
+        f.write("#include <cstdint>\n\n")
         f.write("#include <pico.h>\n\n")
+        f.write("#include \"../font.hh\"\n\n")
 
         # Write font metadata
-        f.write(f"static const uint8_t {base_name.lower()}_font_width = {cell_width};\n")
-        f.write(f"static const uint8_t {base_name.lower()}_font_height = {cell_height};\n")
-        f.write(f"static const uint8_t {base_name.lower()}_font_first_char = {initial_char};\n")
-        f.write(f"static const uint8_t {base_name.lower()}_font_last_char = {initial_char + total_cells - 1};\n\n")
+        f.write(f"struct {base_name}_font : public vga::text::Font {{\n\n")
+        f.write(f"    {base_name}_font() : Font({cell_width}, {cell_height}, {initial_char}, {initial_char + total_cells - 1}) {{}}\n\n")
 
         # Write font data array declaration
-        f.write(f"// Font data for characters from ASCII {initial_char} to {initial_char + total_cells - 1}\n")
-        f.write(f"static const uint8_t __in_flash() {base_name}_font_data[][{cell_height}] = {{\n")
+
+        f.write(f"    uint8_t pixels(uint8_t chr, uint8_t row) const override {{\n")
+        f.write(f"        // Font data for characters from ASCII {initial_char} to {initial_char + total_cells - 1}\n")
+        f.write(f"        static const uint8_t __in_flash() font_data[][{cell_height}] = {{\n")
 
         # Process each character cell
         char_index = 0
@@ -66,8 +67,8 @@ def bitmap_to_cheader(image_path, cell_width, cell_height, horizontal_cells, ini
                 char_value = initial_char + char_index
 
                 # Write character header
-                f.write(f"    // Character: {chr(char_value) if 32 <= char_value <= 126 else '?'} (ASCII: {char_value})\n")
-                f.write("    {\n")
+                f.write(f"            // Character: {chr(char_value) if 32 <= char_value <= 126 else '?'} (ASCII: {char_value})\n")
+                f.write("            {\n")
 
                 # Process each row in the cell
                 for row in range(cell_height):
@@ -93,12 +94,16 @@ def bitmap_to_cheader(image_path, cell_width, cell_height, horizontal_cells, ini
 
                     # Write byte value with visual comment
                     visual_comment = "".join(row_visual)
-                    f.write(f"        0b{byte_value:08b}, // {visual_comment}\n")
+                    f.write(f"                0b{byte_value:08b}, // {visual_comment}\n")
 
-                f.write("    },\n")
+                f.write("         },\n")
                 char_index += 1
 
         # Close the array
+        f.write("        };\n\n")
+
+        f.write(f"        return font_data[chr][row];\n")
+        f.write(f"    }}\n\n")
         f.write("};\n\n")
 
         # Close header guard

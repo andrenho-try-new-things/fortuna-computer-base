@@ -42,7 +42,8 @@ add_executable(${CMAKE_PROJECT_NAME}
 		vga/fb.cc
 		vga/fb.hh
 		vga/text.cc
-		vga/text.hh)
+		vga/text.hh
+		vga/font.hh)
 
 # must match with pio filename and executable name from above
 pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/vga/pio/hsync.pio)

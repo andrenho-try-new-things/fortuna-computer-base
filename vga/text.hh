@@ -5,6 +5,7 @@
 #include <utility>
 
 #include "fb.hh"
+#include "font.hh"
 
 namespace vga::text {
 

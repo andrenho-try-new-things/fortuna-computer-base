@@ -4,9 +4,17 @@
 #include <pico/time.h>
 
 #include "fb.hh"
-#include "fortuna_font.h"
+#include "font.hh"
+#include "fontgen/ibm_font.hh"
+#include "fontgen/fortuna_font.hh"
+
+static fortuna_font default_font;
+static ibm_font secondary_font;
 
 namespace vga::text {
+
+static Font*   font_data[4] { &default_font, &secondary_font, nullptr, nullptr };
+static uint8_t current_font = 0;
 
 static uint16_t cursor_x = 0;
 static uint16_t cursor_y = 0;
@@ -19,7 +27,7 @@ static constexpr uint8_t CURSOR_RESET = 6;
 static uint8_t           cursor_counter = CURSOR_RESET;
 
 static constexpr uint16_t WIDTH = 80;
-static constexpr uint16_t HEIGHT = 30;
+static constexpr uint16_t HEIGHT = 33;
 static constexpr uint8_t  CURSOR_CHAR = 127;
 
 struct __attribute__((packed)) TextCell {
@@ -75,23 +83,27 @@ static void add_char(uint8_t c)
 
 static void update()
 {
+    Font* font = font_data[current_font];
+    if (!font)
+        return;
+
     for (int i = 0; i < WIDTH * HEIGHT; ++i) {
         const int cell_y = i / WIDTH;
         const int cell_x = i - (cell_y * WIDTH);
 
         if (cells[i].dirty) {
-            const int font_idx = cells[i].c - fortuna_font_first_char;
-            if (font_idx < 0 || cells[i].c > fortuna_font_last_char)
+            const int font_idx = cells[i].c - font->first_char;
+            if (font_idx < 0 || cells[i].c > font->last_char)
                 continue;
-            for (uint8_t y = 0; y < fortuna_font_height; ++y)
-                fb::draw_from_byte(fortuna_font_data[font_idx][y], fortuna_font_width, cell_x * fortuna_font_width, cell_y * fortuna_font_height + y, cells[i].bg_color, cells[i].fg_color);
+            for (uint8_t y = 0; y < font->char_height; ++y)
+                fb::draw_from_byte(font->pixels(font_idx, y), font->char_width, cell_x * font->char_width, cell_y * font->char_height+ y, cells[i].bg_color, cells[i].fg_color);
             cells[i].dirty = false;
         }
 
         if (cell_x == cursor_x && cell_y == cursor_y) {
-            for (uint8_t y = 0; y < fortuna_font_height; ++y)
-                fb::draw_from_byte(cursor_is_on ? fortuna_font_data[CURSOR_CHAR - fortuna_font_first_char][y] : 0x0,
-                    fortuna_font_width, cell_x * fortuna_font_width, cell_y * fortuna_font_height + y, Color::Black, Color::Green);
+            for (uint8_t y = 0; y < font->char_height; ++y)
+                fb::draw_from_byte(cursor_is_on ? font->pixels(CURSOR_CHAR - font->first_char, y) : 0x0,
+                    font->char_width, cell_x * font->char_width, cell_y * font->char_height + y, Color::Black, Color::Green);
         }
     }
 }
