@@ -43,12 +43,16 @@ add_executable(${CMAKE_PROJECT_NAME}
 		vga/fb.hh
 		vga/text.cc
 		vga/text.hh
-		vga/font.hh)
+		vga/font.hh
+		usb/usb.cc
+		usb/usb.hh)
 
 # must match with pio filename and executable name from above
 pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/vga/pio/hsync.pio)
 pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/vga/pio/vsync.pio)
 pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/vga/pio/rgb.pio)
+
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/usb)
 
 # must match with executable name
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
@@ -56,10 +60,12 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
 	pico_bootsel_via_double_reset 
 	hardware_pio 
 	hardware_dma 
-	hardware_adc 
-	hardware_sync
-	hardware_irq
+	# hardware_adc
+	# hardware_sync
+	# hardware_irq
 	pico_multicore
+	tinyusb_device
+	tinyusb_host
 )
 
 # must match with executable name

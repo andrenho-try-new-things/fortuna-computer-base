@@ -1,4 +1,6 @@
 #include <pico/stdlib.h>
+
+#include "usb.hh"
 #include "vga/vga.hh"
 
 int main()
@@ -23,6 +25,8 @@ Ut posuere neque interdum justo pellentesque, et condimentum enim scelerisque. P
         for (int x = i * 30 + 50; x < i * 30 + 75; ++x)
             for (int y = 20; y < 45; ++y)
                 vga::fb::draw_pixel(x, y, (Color) i);
+
+    usb::init();
 
     for (;;);
 }
