@@ -107,7 +107,7 @@ static void redraw()
         if (cell_x == cursor_x && cell_y == cursor_y) {
             for (uint8_t y = 0; y < font->char_height; ++y)
                 fb::draw_from_byte(cursor_is_on ? font->pixels(CURSOR_CHAR - font->first_char, y) : 0x0,
-                    font->char_width, cell_x * font->char_width + w_border, cell_y * font->char_height + y + V_BORDER, Color::Black, Color::Green);
+                    font->char_width, cell_x * font->char_width + w_border, cell_y * font->char_height + y + V_BORDER, Color::Black, Color::Lime);
         }
     }
 }

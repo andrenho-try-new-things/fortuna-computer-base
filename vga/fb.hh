@@ -6,9 +6,8 @@
 extern unsigned char vga_data_array[];
 
 enum class Color : uint8_t {
-    Black = 0b0000,
-    Green = 0b0110,
-    White = 0b1111,
+    Black = 0, NavyBlue, DarkGreen, Blue, Green, SkyBlue, Lime, Cyan,
+    Red, Magenta, DarkOrange, Violet, Orange, Pink, Yellow, White,
 };
 
 namespace vga::fb {
