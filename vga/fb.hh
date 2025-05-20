@@ -14,7 +14,7 @@ enum class Color : uint8_t {
 namespace vga::fb {
 
 constexpr uint16_t screen_width() { return 640; }
-constexpr uint16_t screen_height() { return 640; }
+constexpr uint16_t screen_height() { return 480; }
 
 void draw_pixel(uint16_t x, uint16_t y, Color color);
 void draw_from_byte(uint8_t byte, uint8_t n_bytes, uint16_t x, uint16_t y, Color bg_color, Color fg_color);

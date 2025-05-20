@@ -28,7 +28,9 @@ static uint8_t           cursor_counter = CURSOR_RESET;
 
 static uint16_t columns = 80;
 static uint16_t rows = 25;
-static constexpr uint8_t  CURSOR_CHAR = 127;
+
+static constexpr uint8_t CURSOR_CHAR = 127;
+static constexpr uint8_t BORDER = 10;
 
 struct __attribute__((packed)) TextCell {
     uint8_t c = ' ';
@@ -81,11 +83,13 @@ static void add_char(uint8_t c)
     cursor_counter = CURSOR_RESET;
 }
 
-static void update()
+static void redraw()
 {
     Font* font = font_data[current_font];
     if (!font)
         return;
+
+    const int w_border = (fb::screen_width()) / 2 - (columns * font->char_width / 2);
 
     for (int i = 0; i < columns * rows; ++i) {
         const int cell_y = i / columns;
@@ -96,14 +100,14 @@ static void update()
             if (font_idx < 0 || cells[i].c > font->last_char)
                 continue;
             for (uint8_t y = 0; y < font->char_height; ++y)
-                fb::draw_from_byte(font->pixels(font_idx, y), font->char_width, cell_x * font->char_width, cell_y * font->char_height+ y, cells[i].bg_color, cells[i].fg_color);
+                fb::draw_from_byte(font->pixels(font_idx, y), font->char_width, cell_x * font->char_width + w_border, cell_y * font->char_height + y + BORDER, cells[i].bg_color, cells[i].fg_color);
             cells[i].dirty = false;
         }
 
         if (cell_x == cursor_x && cell_y == cursor_y) {
             for (uint8_t y = 0; y < font->char_height; ++y)
                 fb::draw_from_byte(cursor_is_on ? font->pixels(CURSOR_CHAR - font->first_char, y) : 0x0,
-                    font->char_width, cell_x * font->char_width, cell_y * font->char_height + y, Color::Black, Color::Green);
+                    font->char_width, cell_x * font->char_width + w_border, cell_y * font->char_height + y + BORDER, Color::Black, Color::Green);
         }
     }
 }
@@ -117,7 +121,7 @@ void init()
         if (cursor_counter == 0) {
             cursor_is_on = !cursor_is_on;
             cursor_counter = CURSOR_RESET;
-            update();
+            redraw();
         }
         return true;
     }, nullptr, &timer);
@@ -127,7 +131,7 @@ void clear_screen()
 {
     for (size_t i = 0; i < rows * columns; ++i)
         cells[i] = TextCell { ' ', fg_color, bg_color, true };
-    update();
+    redraw();
 }
 
 void set_font(uint8_t idx)
@@ -138,10 +142,10 @@ void set_font(uint8_t idx)
         current_font = idx;
         Font* font = font_data[idx];
         if (font) {
-            columns = fb::screen_width() / font->char_width;
+            columns = (fb::screen_width() - 2 * BORDER) / font->char_width;
             if (columns > 80)
                 columns = 80;
-            rows = fb::screen_height() / font->char_height;
+            rows = (fb::screen_height() - 2 * BORDER) / font->char_height;
             cells = new TextCell[columns * rows];
             clear_screen();
         }
@@ -151,7 +155,7 @@ void set_font(uint8_t idx)
 void print(uint8_t c)
 {
     add_char(c);
-    update();
+    redraw();
 }
 
 void print(const char* text)
@@ -160,7 +164,7 @@ void print(const char* text)
         add_char(*text);
         text++;
     }
-    update();
+    redraw();
 }
 
 std::pair<uint16_t, uint16_t> get_cursor()
