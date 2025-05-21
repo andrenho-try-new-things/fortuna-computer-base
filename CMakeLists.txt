@@ -49,8 +49,8 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
 	# hardware_sync
 	# hardware_irq
 	pico_multicore
-	tinyusb_board
 	tinyusb_host
+	tinyusb_board
 )
 
 # must match with executable name

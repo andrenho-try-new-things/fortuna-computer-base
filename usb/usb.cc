@@ -10,7 +10,8 @@ namespace usb {
 void init()
 {
     board_init();
-    tuh_init(BOARD_TUH_RHPORT);
+    tusb_init();
+    // tuh_init(BOARD_TUH_RHPORT);
     board_led_write(true);
 
     printf("USB initialized.\n");
@@ -22,6 +23,8 @@ void step()
 }
 
 }
+
+extern "C" {
 
 //--------------------------------------------------------------------+
 // Keyboard
@@ -131,4 +134,6 @@ void tuh_hid_report_received_cb(uint8_t dev_addr, uint8_t instance, uint8_t cons
     {
         printf("Error: cannot request to receive report\r\n");
     }
+}
+
 }
