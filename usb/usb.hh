@@ -4,6 +4,7 @@
 namespace usb {
 
 void init();
+void step();
 
 }
 

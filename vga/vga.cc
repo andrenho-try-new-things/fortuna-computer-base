@@ -135,6 +135,8 @@ void init()
     dma_start_channel_mask((1u << rgb_chan_0)) ;
 
     text::init();
+
+    printf("VGA initialized.\n");
 }
 
 }
