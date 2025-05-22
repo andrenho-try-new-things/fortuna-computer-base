@@ -25,7 +25,7 @@
   - [x] bug with set_cursor
   - [x] longtext
   - [x] font
-- [ ] Finalize font
+- [x] Finalize font
   - [ ] boxes
 - [ ] Write documentation
 

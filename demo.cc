@@ -49,7 +49,17 @@ static bool on_key_press(usb::keyboard::Event const& e)
 void execute_command(const char* cmd)
 {
     if (strcmp(cmd, "help") == 0) {
-        vga::text::print("boxes    cls     font      longtext\n");
+        vga::text::print("ascii     boxes    cls     font      longtext\n");
+    } else if (strcmp(cmd, "ascii") == 0) {
+        for (uint8_t y = 0; y < 16; ++y) {
+            for (uint8_t x = 0; x < 16; ++x) {
+                if (y == 0 && (x == 8 || x == 10))
+                    vga::text::print(' ');
+                else
+                    vga::text::print((y << 4) | x);
+            }
+            vga::text::print('\n');
+        }
     } else if (strcmp(cmd, "cls") == 0) {
         vga::text::clear_screen();
         vga::text::set_cursor(0, 0);

@@ -34,7 +34,7 @@ void draw_pixel(uint16_t x, uint16_t y, Color color)
 void draw_from_byte(uint8_t byte, uint8_t n_bytes, uint16_t x, uint16_t y, Color bg_color, Color fg_color)
 {
     for (int m = 0; m < n_bytes; ++m) {
-        uint8_t v = byte & (1 << (n_bytes - m));
+        uint8_t v = byte & (1 << (n_bytes - m - 1));
         draw_pixel(x + m, y, v ? fg_color : bg_color);
     }
 }
