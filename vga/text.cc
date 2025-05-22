@@ -38,6 +38,10 @@ struct __attribute__((packed)) TextCell {
     Color   fg_color: 4 = Color::Black;
     Color   bg_color: 4 = Color::White;
     bool    dirty = false;
+
+    bool operator!=(const TextCell& o) const {
+        return c != o.c || fg_color != o.fg_color || bg_color != o.bg_color;
+    }
 };
 
 static TextCell* cells;
@@ -93,7 +97,7 @@ static void add_char(uint8_t c)
     cursor_is_on = true;
 }
 
-static void redraw()
+void redraw()
 {
     Font* font = font_data[current_font];
     if (!font)
@@ -167,10 +171,11 @@ void set_font(font f)
     }
 }
 
-void print(uint8_t c)
+void print(uint8_t c, bool redraw)
 {
     add_char(c);
-    redraw();
+    if (redraw)
+        text::redraw();
 }
 
 void print(const char* text)

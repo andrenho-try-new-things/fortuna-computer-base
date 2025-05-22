@@ -17,9 +17,11 @@ void init();
 void clear_screen();
 void set_font(font f);
 
-void print(uint8_t c);
+void print(uint8_t c, bool redraw=true);
 void print(const char* text);
 void printf(const char* fmt, ...);
+
+void redraw();
 
 std::pair<uint16_t, uint16_t> get_cursor();
 std::pair<Color, Color>       get_color();

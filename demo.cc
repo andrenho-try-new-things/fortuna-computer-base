@@ -54,12 +54,13 @@ void execute_command(const char* cmd)
         for (uint8_t y = 0; y < 16; ++y) {
             for (uint8_t x = 0; x < 16; ++x) {
                 if (y == 0 && (x == 8 || x == 10))
-                    vga::text::print(' ');
+                    vga::text::print(' ', false);
                 else
-                    vga::text::print((y << 4) | x);
+                    vga::text::print((y << 4) | x, false);
             }
-            vga::text::print('\n');
+            vga::text::print('\n', false);
         }
+        vga::text::redraw();
     } else if (strcmp(cmd, "cls") == 0) {
         vga::text::clear_screen();
         vga::text::set_cursor(0, 0);
