@@ -76,13 +76,14 @@ void process_report(hid_keyboard_report_t const* report)
         // look for new keys
         for (uint8_t i = 0; i < 6; ++i) {
             if (report->keycode[i] != 0) {
-                for (uint8_t j = 0; j < 6; ++j) {
+                bool found = false;
+                for (uint8_t j = 0; j < 6; ++j)
                     if (report->keycode[i] == prev.keycode[j])
-                        continue;
+                        found = true;
 
+                if (!found) {
                     process_special_key(report->keycode[i]);
                     fire_event(report, i, true);
-                    break;
                 }
             }
         }
@@ -90,13 +91,13 @@ void process_report(hid_keyboard_report_t const* report)
         // look for keys released
         for (uint8_t i = 0; i < 6; ++i) {
             if (prev.keycode[i] != 0) {
-                for (uint8_t j = 0; j < 6; ++j) {
-                    if (report->keycode[j] == prev.keycode[i])
-                        continue;
+                bool found = false;
+                for (uint8_t j = 0; j < 6; ++j)
+                    if (prev.keycode[i] == report->keycode[j])
+                        found = true;
 
+                if (!found)
                     fire_event(&prev, i, false);
-                    break;
-                }
             }
         }
     }
