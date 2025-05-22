@@ -67,9 +67,9 @@
 #define CFG_TUSB_OS           OPT_OS_NONE
 #endif
 
-// #ifndef CFG_TUSB_DEBUG
+#ifndef CFG_TUSB_DEBUG
 #define CFG_TUSB_DEBUG        2
-// #endif
+#endif
 
 // Enable Host stack
 #define CFG_TUH_ENABLED       1

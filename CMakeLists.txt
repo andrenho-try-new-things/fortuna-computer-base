@@ -32,7 +32,9 @@ add_executable(${CMAKE_PROJECT_NAME}
 		vga/text.hh
 		vga/font.hh
 		usb/usb.cc
-		usb/usb.hh)
+		usb/usb.hh
+		usb/keyboard.cc
+		usb/keyboard.hh)
 
 pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/vga/pio/hsync.pio)
 pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/vga/pio/vsync.pio)

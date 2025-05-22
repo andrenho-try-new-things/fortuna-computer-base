@@ -3,7 +3,7 @@
 #include <pico/stdlib.h>
 #include <pico/multicore.h>
 
-#include "usb.hh"
+#include "usb/usb.hh"
 #include "vga/vga.hh"
 
 static semaphore_t semaphore;
@@ -41,6 +41,10 @@ int main()
     //
     // USER code below
     //
+
+    usb::keyboard::subscribe([](usb::keyboard::Event const& e) {
+        printf("%s '%c' %02X\n", e.pressed ? "pressed" : "released", e.chr, e.hid_key);
+    });
 
     vga::fb::draw_pixel(0, 0, Color::White);
     vga::fb::draw_pixel(639, 0, Color::White);
