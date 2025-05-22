@@ -15,7 +15,7 @@ include(pico_sdk_import.cmake)
 # project
 #
 
-project(fortuna-computer-base)
+project(fortuna-computer-base VERSION 0.9.1)
 pico_sdk_init()
 
 #
@@ -43,6 +43,7 @@ pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/vga/pio
 pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/vga/pio/rgb.pio)
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/usb)
+target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE -DPROJECT_VERSION=\"${CMAKE_PROJECT_VERSION}\")
 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
 	pico_stdlib 

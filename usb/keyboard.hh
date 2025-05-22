@@ -12,12 +12,13 @@ struct __attribute__((packed)) Event {
     bool    alt      : 1;
     bool    shift    : 1;
     bool    pressed  : 1;
+    bool    has_data : 1;
 };
 
 void init(uint8_t device_id, uint8_t instance);             // internal
 void process_report(hid_keyboard_report_t const *report);   // internal
 
-void subscribe(void(*event)(Event const& event_cb));  // null to unsubcribe
+bool next_event(Event* event);
 
 }
 

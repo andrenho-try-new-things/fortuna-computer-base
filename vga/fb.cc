@@ -1,9 +1,18 @@
 #include "fb.hh"
 
+#include <cstring>
+
+#include "vga.hh"
+
 #define TOPMASK 0b00001111
 #define BOTTOMMASK 0b11110000
 
 namespace vga::fb {
+
+void clear()
+{
+    memset(vga_data_array, 0, screen_width() * screen_height() / 2);
+}
 
 void draw_pixel(uint16_t x, uint16_t y, Color color)
 {

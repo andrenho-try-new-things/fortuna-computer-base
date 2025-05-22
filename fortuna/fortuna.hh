@@ -6,7 +6,7 @@
 
 namespace fortuna {
 
-void init();
+void init(bool print_welcome);
 
 }
 

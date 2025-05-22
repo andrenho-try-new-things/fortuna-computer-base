@@ -2,6 +2,7 @@
 #define TEXT_HH
 
 #include <cstdint>
+#include <cstdarg>
 #include <utility>
 
 #include "fb.hh"
@@ -18,6 +19,7 @@ void set_font(font f);
 
 void print(uint8_t c);
 void print(const char* text);
+void printf(const char* fmt, ...);
 
 std::pair<uint16_t, uint16_t> get_cursor();
 std::pair<Color, Color>       get_color();

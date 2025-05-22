@@ -1,6 +1,7 @@
 #include "text.hh"
 
 #include <cstring>
+#include <cstdio>
 #include <pico/time.h>
 
 #include "fb.hh"
@@ -59,6 +60,12 @@ static void add_char(uint8_t c)
         add_char(' ');
         while (cursor_x != 0)
             add_char(' ');
+    } else if (c == '\b') {
+        cells[cursor_x + (cursor_y * columns)].dirty = true;
+        if (cursor_x > 0) {
+            --cursor_x;
+            cells[cursor_x + (cursor_y * columns)] = TextCell { ' ', fg_color, bg_color, true };
+        }
     } else {
         cells[cursor_x + (cursor_y * columns)] = TextCell {
             .c = c,
@@ -81,6 +88,7 @@ static void add_char(uint8_t c)
     }
 
     cursor_counter = CURSOR_RESET;
+    cursor_is_on = true;
 }
 
 static void redraw()
@@ -129,6 +137,8 @@ void init()
 
 void clear_screen()
 {
+    cells[cursor_x + (cursor_y * columns)].c = ' ';
+    cells[cursor_x + (cursor_y * columns)].dirty = true;
     for (size_t i = 0; i < rows * columns; ++i)
         cells[i] = TextCell { ' ', fg_color, bg_color, true };
     redraw();
@@ -138,6 +148,7 @@ void set_font(font f)
 {
     if ((uint8_t) f < sizeof(font_data) / sizeof(font_data[0])) {
         clear_screen();
+        fb::clear();
         delete cells;
         current_font = (uint8_t) f;
         Font* font = font_data[(uint8_t) f];
@@ -147,7 +158,9 @@ void set_font(font f)
                 columns = 80;
             rows = (fb::screen_height() - 2 * V_BORDER) / font->char_height;
             cells = new TextCell[columns * rows];
+            redraw();
             clear_screen();
+            set_cursor(0, 0);
         }
     }
 }
@@ -165,6 +178,16 @@ void print(const char* text)
         text++;
     }
     redraw();
+}
+
+void printf(const char* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    int sz = vsprintf(nullptr, fmt, args);
+    char buf[sz + 1] = {0};
+    vsnprintf(buf, sz, fmt, args);
+    va_end(args);
 }
 
 std::pair<uint16_t, uint16_t> get_cursor()
@@ -185,8 +208,9 @@ void set_color(Color bg_color_, Color fg_color_)
 
 void set_cursor(uint16_t x, uint16_t y)
 {
-    cursor_x = MAX(x, 639);
-    cursor_y = MAX(y, 479);
+    cells[cursor_x + (cursor_y * columns)].dirty = true;
+    cursor_x = MIN(x, 639);
+    cursor_y = MIN(y, 479);
 }
 
 }

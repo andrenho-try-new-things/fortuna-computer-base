@@ -2175,19 +2175,19 @@ struct fortuna_font : public vga::text::Font {
          },
             // Character: ? (ASCII: 127)
             {
-                0b00000000, // .......
-                0b01111110, // XXXXXX.
-                0b01111110, // XXXXXX.
-                0b01111110, // XXXXXX.
-                0b01111110, // XXXXXX.
-                0b01111110, // XXXXXX.
-                0b01111110, // XXXXXX.
-                0b01111110, // XXXXXX.
-                0b01111110, // XXXXXX.
-                0b01111110, // XXXXXX.
-                0b01111110, // XXXXXX.
-                0b01111110, // XXXXXX.
-                0b00000000, // .......
+                0b01111111, // XXXXXXX
+                0b01111111, // XXXXXXX
+                0b01111111, // XXXXXXX
+                0b01111111, // XXXXXXX
+                0b01111111, // XXXXXXX
+                0b01111111, // XXXXXXX
+                0b01111111, // XXXXXXX
+                0b01111111, // XXXXXXX
+                0b01111111, // XXXXXXX
+                0b01111111, // XXXXXXX
+                0b01111111, // XXXXXXX
+                0b01111111, // XXXXXXX
+                0b01111111, // XXXXXXX
                 0b00000000, // .......
          },
             // Character: ? (ASCII: 128)
@@ -4352,17 +4352,17 @@ struct fortuna_font : public vga::text::Font {
             // Character: ? (ASCII: 255)
             {
                 0b00000000, // .......
-                0b01111110, // XXXXXX.
-                0b01111110, // XXXXXX.
-                0b01111110, // XXXXXX.
-                0b01111110, // XXXXXX.
-                0b01111110, // XXXXXX.
-                0b01111110, // XXXXXX.
-                0b01111110, // XXXXXX.
-                0b01111110, // XXXXXX.
-                0b01111110, // XXXXXX.
-                0b01111110, // XXXXXX.
-                0b00000000, // .......
+                0b01111111, // XXXXXXX
+                0b01111111, // XXXXXXX
+                0b01111111, // XXXXXXX
+                0b01111111, // XXXXXXX
+                0b01111111, // XXXXXXX
+                0b01111111, // XXXXXXX
+                0b01111111, // XXXXXXX
+                0b01111111, // XXXXXXX
+                0b01111111, // XXXXXXX
+                0b01111111, // XXXXXXX
+                0b01111111, // XXXXXXX
                 0b00000000, // .......
                 0b00000000, // .......
          },

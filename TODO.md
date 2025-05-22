@@ -18,9 +18,16 @@
 ## Version 0.2
 
 - [x] USB keyboard
+- [x] Add version number
+- [ ] Add copyright
 - [ ] Test application
+  - [x] cls
+  - [x] bug with set_cursor
+  - [x] longtext
+  - [x] font
 - [ ] Finalize font
-- [ ] Add version number
+  - [ ] boxes
+- [ ] Write documentation
 
 ## Version 0.3
 

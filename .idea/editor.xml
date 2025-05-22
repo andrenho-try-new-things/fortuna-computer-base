@@ -16,5 +16,6 @@
     <option name="/Default/CodeStyle/CodeFormatting/CppFormatting/PLACE_ENUM_ON_SINGLE_LINE/@EntryValue" />
     <option name="/Default/CodeStyle/CodeFormatting/CppFormatting/MAX_ENUM_MEMBERS_ON_LINE/@EntryValue" value="6" type="long" />
     <option name="/Default/CodeStyle/CodeFormatting/CppFormatting/NAMESPACE_INDENTATION/@EntryValue" value="None" type="string" />
+    <option name="/Default/CodeStyle/CodeFormatting/CppFormatting/INDENT_CASE_FROM_SWITCH/@EntryValue" value="true" type="bool" />
   </component>
 </project>

@@ -6,6 +6,8 @@
 
 namespace vga {
 
+extern unsigned char vga_data_array[];
+
 void init();
 
 };

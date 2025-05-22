@@ -28,14 +28,14 @@ enum vga_pins {HSYNC=16, VSYNC, LO_GRN, HI_GRN, BLUE_PIN, RED_PIN} ;
 // Pixel color array that is DMA's to the PIO machines and
 // a pointer to the ADDRESS of this color array.
 // Note that this array is automatically initialized to all 0's (black)
-unsigned char vga_data_array[TXCOUNT];
-char* address_pointer = (char*) &vga_data_array[0] ;
-
 // Bit masks for drawPixel routine
 #define TOPMASK 0b00001111
 #define BOTTOMMASK 0b11110000
 
 namespace vga {
+
+unsigned char vga_data_array[TXCOUNT];
+static char* address_pointer = (char*) &vga_data_array[0] ;
 
 void init()
 {
