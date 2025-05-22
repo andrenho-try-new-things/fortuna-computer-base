@@ -46,8 +46,10 @@ static void line_feed()
 {
     for (int i = 0; i < columns * rows; ++i) {
         if (i < (columns * (rows - 1))) {
-            cells[i] = cells[i + columns];
-            cells[i].dirty = true;
+            if (cells[i] != cells[i + columns]) {
+                cells[i] = cells[i + columns];
+                cells[i].dirty = true;
+            }
         } else {
             cells[i] = TextCell { ' ', fg_color, bg_color, true };
         }
