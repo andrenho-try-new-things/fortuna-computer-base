@@ -23,7 +23,7 @@ pico_sdk_init()
 #
 
 add_executable(${CMAKE_PROJECT_NAME}
-		main.cc
+		demo.cc
 		vga/vga.hh
 		vga/vga.cc
 		vga/fb.cc
@@ -34,7 +34,9 @@ add_executable(${CMAKE_PROJECT_NAME}
 		usb/usb.cc
 		usb/usb.hh
 		usb/keyboard.cc
-		usb/keyboard.hh)
+		usb/keyboard.hh
+		fortuna/fortuna.cc
+		fortuna/fortuna.hh)
 
 pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/vga/pio/hsync.pio)
 pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/vga/pio/vsync.pio)

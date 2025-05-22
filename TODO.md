@@ -17,9 +17,9 @@
 
 ## Version 0.2
 
-- [ ] USB keyboard
-- [ ] Finalize font
+- [x] USB keyboard
 - [ ] Test application
+- [ ] Finalize font
 - [ ] Add version number
 
 ## Version 0.3
