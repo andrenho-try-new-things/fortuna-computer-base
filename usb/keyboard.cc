@@ -54,11 +54,22 @@ static uint8_t keychar(hid_keyboard_report_t const* report, uint8_t i)
 
 void process_report(hid_keyboard_report_t const* report)
 {
-#if 0   // enable this to print the character state
+#if 1   // enable this to print the character state
     for(uint8_t i=0; i<6; i++)
         printf("[%02X]", report->keycode[i]);
     printf("  mod: %02X\n", report->modifier);
 #endif
+
+    auto fire_event = [](hid_keyboard_report_t const* report, uint8_t i, bool pressed) {
+        subscription({
+            .hid_key = report->keycode[i],
+            .chr = keychar(report, i),
+            .ctrl = (bool) (report->modifier & (KEYBOARD_MODIFIER_LEFTCTRL | KEYBOARD_MODIFIER_RIGHTCTRL)),
+            .alt = (bool) (report->modifier & (KEYBOARD_MODIFIER_LEFTALT | KEYBOARD_MODIFIER_RIGHTALT)),
+            .shift = (bool) (report->modifier & (KEYBOARD_MODIFIER_LEFTSHIFT | KEYBOARD_MODIFIER_RIGHTSHIFT)),
+            .pressed = pressed,
+        });
+    };
 
     if (subscription) {
 
@@ -69,16 +80,8 @@ void process_report(hid_keyboard_report_t const* report)
                     if (report->keycode[i] == prev.keycode[j])
                         continue;
 
-                    // key found in new but not in prev, fire event
                     process_special_key(report->keycode[i]);
-                    subscription({
-                        .hid_key = report->keycode[i],
-                        .chr = keychar(report, i),
-                        .ctrl = (bool) (report->modifier & (KEYBOARD_MODIFIER_LEFTCTRL | KEYBOARD_MODIFIER_RIGHTCTRL)),
-                        .alt = (bool) (report->modifier & (KEYBOARD_MODIFIER_LEFTALT | KEYBOARD_MODIFIER_RIGHTALT)),
-                        .shift = (bool) (report->modifier & (KEYBOARD_MODIFIER_LEFTSHIFT | KEYBOARD_MODIFIER_RIGHTSHIFT)),
-                        .pressed = true,
-                    });
+                    fire_event(report, i, true);
                     break;
                 }
             }
@@ -91,17 +94,7 @@ void process_report(hid_keyboard_report_t const* report)
                     if (report->keycode[j] == prev.keycode[i])
                         continue;
 
-                    bool const is_shift = prev.modifier & (KEYBOARD_MODIFIER_LEFTSHIFT | KEYBOARD_MODIFIER_RIGHTSHIFT);
-
-                    // key found in new but not in prev, fire event
-                    subscription({
-                        .hid_key = prev.keycode[i],
-                        .chr = keychar(&prev, i),
-                        .ctrl = (bool) (prev.modifier & (KEYBOARD_MODIFIER_LEFTCTRL | KEYBOARD_MODIFIER_RIGHTCTRL)),
-                        .alt = (bool) (prev.modifier & (KEYBOARD_MODIFIER_LEFTALT | KEYBOARD_MODIFIER_RIGHTALT)),
-                        .shift = (bool) (report->modifier & (KEYBOARD_MODIFIER_LEFTSHIFT | KEYBOARD_MODIFIER_RIGHTSHIFT)),
-                        .pressed = false,
-                    });
+                    fire_event(&prev, i, false);
                     break;
                 }
             }

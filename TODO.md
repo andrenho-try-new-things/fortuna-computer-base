@@ -18,6 +18,12 @@
 ## Version 0.2
 
 - [ ] USB keyboard
+- [ ] Finalize font
+- [ ] Test application
+- [ ] Add version number
+
+## Version 0.3
+
 - [ ] SD Card
 - [ ] Real-time clock + battery
 - [ ] Audio (?)
@@ -27,7 +33,7 @@
 - [ ] Extra button
 - [ ] Build circuit
 
-## Version 0.3
+## Version 0.4
 
 - [ ] VGA mode 2 at lower resolution (320x200)
 - [ ] More drawing primitives (?)
