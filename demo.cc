@@ -175,7 +175,7 @@ static void sdcard()
 void execute_command(const char* cmd)
 {
     if (strcmp(cmd, "help") == 0) {
-        vga::text::print("ascii  cls  font  led  longtext sdcard switches table\n");
+        vga::text::print("ascii  cls  font  led  longtext  sdcard  switches  table\n");
     } else if (strcmp(cmd, "ascii") == 0) {
         ascii_table();
     } else if (strcmp(cmd, "cls") == 0) {
@@ -233,6 +233,9 @@ next_command:
                         command[0] = '\0';
                         goto next_command;;
                     }
+                    break;
+                case fortuna::Event::Type::UserButton:
+                    vga::text::print(" [USER BUTTON PRESSED] ");
                     break;
             }
         }

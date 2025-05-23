@@ -55,7 +55,8 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
 	pico_stdlib 
 	pico_bootsel_via_double_reset
 	hardware_pio 
-	hardware_dma 
+	hardware_dma
+	hardware_irq
 	pico_multicore
 	tinyusb_host
 	tinyusb_board

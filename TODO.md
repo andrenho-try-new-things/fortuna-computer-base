@@ -32,7 +32,7 @@
 
 - [x] SD Card
 - [x] UART
-- [ ] Extra button / LED
+- [x] Extra button / LED
 - [ ] Real-time clock + battery
 - [ ] Audio (?)
 - [ ] Extra SPI port
