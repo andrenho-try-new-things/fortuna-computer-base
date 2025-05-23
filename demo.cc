@@ -2,10 +2,6 @@
 
 #include "fortuna/fortuna.hh"
 
-#include "hw_config.h"
-#include "f_util.h"
-#include "ff.h"
-
 static char command[255] = "";
 
 static bool on_key_press(usb::keyboard::Event const& e)
@@ -179,7 +175,7 @@ static void sdcard()
 void execute_command(const char* cmd)
 {
     if (strcmp(cmd, "help") == 0) {
-        vga::text::print("ascii     cls     font     longtext      sdcard     table\n");
+        vga::text::print("ascii  cls  font  led  longtext sdcard switches table\n");
     } else if (strcmp(cmd, "ascii") == 0) {
         ascii_table();
     } else if (strcmp(cmd, "cls") == 0) {
@@ -199,6 +195,15 @@ void execute_command(const char* cmd)
         vga::text::print("font NUMBER\n");
     } else if (strcmp(cmd, "sdcard") == 0) {
         sdcard();
+    } else if (strcmp(cmd, "led") == 0) {
+        vga::text::print("led [0 | 1]\n");
+    } else if (strcmp(cmd, "led 0") == 0) {
+        user::set_led(false);
+    } else if (strcmp(cmd, "led 1") == 0) {
+        user::set_led(true);
+    } else if (strcmp(cmd, "switches") == 0) {
+        uint8_t s = user::get_dipswitch();
+        vga::text::printf("%d%d\n", s & 1, (s >> 1) & 1);
     } else if (strcmp(cmd, "table") == 0) {
         table();
     } else if (cmd[0] != '\0') {

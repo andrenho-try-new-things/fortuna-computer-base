@@ -5,9 +5,6 @@
 #include <pico/stdlib.h>
 #include <pico/multicore.h>
 
-#include "../usb/usb.hh"
-#include "../vga/vga.hh"
-
 static semaphore_t semaphore;
 
 //
@@ -21,6 +18,7 @@ void core1_entry()
 
     vga::init();
     usb::init();
+    user::init();
 
     sem_release(&semaphore);
 

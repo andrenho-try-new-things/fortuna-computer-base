@@ -3,6 +3,10 @@
 
 #include "../usb/usb.hh"
 #include "../vga/vga.hh"
+#include "../user/user.hh"
+#include "hw_config.h"
+#include "f_util.h"
+#include "ff.h"
 
 namespace fortuna {
 
