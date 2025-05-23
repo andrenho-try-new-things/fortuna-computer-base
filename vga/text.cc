@@ -178,22 +178,35 @@ void print(uint8_t c, bool redraw)
         text::redraw();
 }
 
-void print(const char* text)
+void print(const char* text, bool redraw)
 {
     while (*text) {
         add_char(*text);
         text++;
     }
-    redraw();
+    if (redraw)
+        text::redraw();
 }
 
 void printf(const char* fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    int sz = vsprintf(nullptr, fmt, args);
+    int sz = vsnprintf(nullptr, 0, fmt, args);
     char buf[sz + 1] = {0};
-    vsnprintf(buf, sz, fmt, args);
+    vsnprintf(buf, sz + 1, fmt, args);
+    print(buf, true);
+    va_end(args);
+}
+
+void printf_noredraw(const char* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    int sz = vsnprintf(nullptr, 0, fmt, args);
+    char buf[sz + 1] = {0};
+    vsnprintf(buf, sz + 1, fmt, args);
+    print(buf, false);
     va_end(args);
 }
 

@@ -46,26 +46,25 @@ static bool on_key_press(usb::keyboard::Event const& e)
     return false;
 }
 
-void execute_command(const char* cmd)
-{
-    if (strcmp(cmd, "help") == 0) {
-        vga::text::print("ascii     boxes    cls     font      longtext\n");
-    } else if (strcmp(cmd, "ascii") == 0) {
-        for (uint8_t y = 0; y < 16; ++y) {
-            for (uint8_t x = 0; x < 16; ++x) {
-                if (y == 0 && (x == 8 || x == 10))
-                    vga::text::print(' ', false);
-                else
-                    vga::text::print((y << 4) | x, false);
-            }
-            vga::text::print('\n', false);
+void ascii_table() {
+    vga::text::print("  0123456789ABCDEF\n", false);
+    for (uint8_t y = 0; y < 16; ++y) {
+        vga::text::printf_noredraw("%X", y);
+        vga::text::print(' ', false);
+        for (uint8_t x = 0; x < 16; ++x) {
+            if (y == 0 && (x == 8 || x == 10))
+                vga::text::print(' ', false);
+            else
+                vga::text::print((y << 4) | x, false);
         }
-        vga::text::redraw();
-    } else if (strcmp(cmd, "cls") == 0) {
-        vga::text::clear_screen();
-        vga::text::set_cursor(0, 0);
-    } else if (strcmp(cmd, "longtext") == 0) {
-        vga::text::print(R"(Morbi volutpat nisi ut pellentesque aliquet. Aenean luctus justo quis lacus ultricies, semper cursus purus commodo. Donec blandit, enim sagittis dictum faucibus, lectus felis tempor nisi, non pharetra nunc purus quis nibh. Curabitur eu mollis tortor, et finibus velit. Suspendisse commodo ac ligula quis laoreet. Suspendisse sit amet blandit purus. In eu lobortis nibh, ut sagittis elit. Maecenas at nisi ut massa scelerisque gravida. Aliquam tempus sagittis felis, quis rhoncus tortor. Sed ornare, massa vel venenatis molestie, metus metus scelerisque metus, vitae bibendum velit est eu lectus.
+        vga::text::print('\n', false);
+    }
+    vga::text::redraw();
+}
+
+void longtext()
+{
+    vga::text::print(R"(Morbi volutpat nisi ut pellentesque aliquet. Aenean luctus justo quis lacus ultricies, semper cursus purus commodo. Donec blandit, enim sagittis dictum faucibus, lectus felis tempor nisi, non pharetra nunc purus quis nibh. Curabitur eu mollis tortor, et finibus velit. Suspendisse commodo ac ligula quis laoreet. Suspendisse sit amet blandit purus. In eu lobortis nibh, ut sagittis elit. Maecenas at nisi ut massa scelerisque gravida. Aliquam tempus sagittis felis, quis rhoncus tortor. Sed ornare, massa vel venenatis molestie, metus metus scelerisque metus, vitae bibendum velit est eu lectus.
 
 Curabitur a ultricies est. Pellentesque sit amet pellentesque urna. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut eget pretium sem. Etiam suscipit efficitur massa, vestibulum rutrum leo. Nullam id euismod justo. Duis pulvinar rhoncus porta. Fusce dignissim, dolor eget finibus pretium, arcu ex condimentum mauris, non faucibus tortor odio scelerisque turpis.
 
@@ -73,6 +72,74 @@ Suspendisse potenti. Curabitur laoreet eu orci in ullamcorper. Integer pharetra 
 
 Aenean vehicula turpis sed risus convallis fringilla. Fusce id mi varius tortor accumsan finibus. Donec accumsan vitae neque vel bibendum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum suscipit mi a condimentum pretium. In id est lorem. Nulla facilisi. In vehicula non purus ac aliquet. Mauris lacinia magna ac venenatis interdum. Nam lorem velit, semper vitae nunc eu, fermentum blandit lorem. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc dictum eros sed rutrum porttitor. Aliquam at ex euismod, vestibulum ante in, dignissim odio. Nam sit amet aliquet velit, id consectetur nisl. Cras id mauris sed arcu ultrices eleifend.
 )");
+}
+
+void table()
+{
+    using namespace vga::text;
+    print('\n', false);
+
+    print(0xc9, false);
+    for (uint8_t i = 0; i < 15; ++i) print(0xcd, false);
+    print(0xcb, false);
+    for (uint8_t i = 0; i < 10; ++i) print(0xcd, false);
+    print(0xcb, false);
+    for (uint8_t i = 0; i < 10; ++i) print(0xcd, false);
+    print(0xbb, false);
+    print('\n', false);
+
+    vga::text::printf("%c%-15s%c%-10s%c%-10s%c\n", 0xba, "Country", 0xba, "Exports", 0xba, "Imports", 0xba);
+
+    print(0xc7);
+    for (uint8_t i = 0; i < 15; ++i) print(0xc4, false);
+    print(0xd7, false);
+    for (uint8_t i = 0; i < 10; ++i) print(0xc4, false);
+    print(0xd7, false);
+    for (uint8_t i = 0; i < 10; ++i) print(0xc4, false);
+    print(0xb6, false);
+    print('\n', false);
+
+    struct {
+        Color       color;
+        const char* txt;
+        float       val1, val2;
+    } items[] = {
+        { Color::Lime, "Brazil", 149323.32, 45389.32 },
+        { Color::Orange, "Netherlands", 93482.98, 334.12 },
+        { Color::Cyan, "United States", 9343.76, 1776.58 },
+        { Color::Red, "U.S.S.R", -56783.2, 156743.4 },
+    };
+    for (auto const& item: items) {
+        print(0xba);
+        set_color(Color::Black, item.color);
+        vga::text::printf("%-15s", item.txt);
+        set_color(Color::Black, Color::White);
+        vga::text::printf("%c%10.2f%c%10.2f%c\n", 0xba, item.val1, 0xba, item.val2, 0xba);
+    }
+
+    print(0xc8, false);
+    for (uint8_t i = 0; i < 15; ++i) print(0xcd, false);
+    print(0xcb, false);
+    for (uint8_t i = 0; i < 10; ++i) print(0xcd, false);
+    print(0xcb, false);
+    for (uint8_t i = 0; i < 10; ++i) print(0xcd, false);
+    print(0xbc, false);
+    print("\n\n", false);
+
+    redraw();
+}
+
+void execute_command(const char* cmd)
+{
+    if (strcmp(cmd, "help") == 0) {
+        vga::text::print("ascii     cls     font     longtext     table\n");
+    } else if (strcmp(cmd, "ascii") == 0) {
+        ascii_table();
+    } else if (strcmp(cmd, "cls") == 0) {
+        vga::text::clear_screen();
+        vga::text::set_cursor(0, 0);
+    } else if (strcmp(cmd, "longtext") == 0) {
+        longtext();
     } else if (strcmp(cmd, "font") == 0) {
         vga::text::print("font [fortuna | ibm]\n");
     } else if (strcmp(cmd, "font fortuna") == 0) {
@@ -83,6 +150,8 @@ Aenean vehicula turpis sed risus convallis fringilla. Fusce id mi varius tortor 
         vga::text::print("Font 'ibm' selected.\n");
     } else if (strcmp(cmd, "font") == 0) {
         vga::text::print("font NUMBER\n");
+    } else if (strcmp(cmd, "table") == 0) {
+        table();
     } else if (cmd[0] != '\0') {
         vga::text::set_color(Color::Black, Color::Red);
         vga::text::print("Error.\n");

@@ -18,8 +18,9 @@ void clear_screen();
 void set_font(font f);
 
 void print(uint8_t c, bool redraw=true);
-void print(const char* text);
+void print(const char* text, bool redraw=true);
 void printf(const char* fmt, ...);
+void printf_noredraw(const char* fmt, ...);
 
 void redraw();
 
