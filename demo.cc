@@ -144,7 +144,7 @@ static void sdcard()
     }
 
     DIR dir;
-    fr = f_opendir(&dir, "/");
+    fr = f_opendir(&dir, "");
     if (FR_OK != fr) {
         vga::text::set_color(Color::Black, Color::Red);
         vga::text::printf("Error reading root directory: %s\n", FRESULT_str(fr));
@@ -168,7 +168,7 @@ static void sdcard()
         if (fno.fattrib & AM_DIR) {            /* Directory */
             vga::text::printf("   <DIR>   %s\n", fno.fname);
         } else {                               /* File */
-            vga::text::printf("%10d %s\n", fno.fsize, fno.fname);
+            vga::text::printf("%10llu %s\n", fno.fsize, fno.fname);
         }
     }
     f_closedir(&dir);

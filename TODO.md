@@ -30,7 +30,7 @@
 
 ## Version 0.3
 
-- [ ] SD Card
+- [x] SD Card
 - [ ] Real-time clock + battery
 - [ ] Audio (?)
 - [ ] Extra SPI port
