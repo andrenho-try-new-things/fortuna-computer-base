@@ -6,10 +6,13 @@
 
 namespace user {
 
-static const uint8_t LED_PIN = 14;
-static const uint8_t DIP0_PIN = 27;
-static const uint8_t DIP1_PIN = 28;
-static const uint8_t USER_BUTTON_PIN = 15;
+static constexpr uint8_t LED_PIN = 14;
+static constexpr uint8_t DIP0_PIN = 27;
+static constexpr uint8_t DIP1_PIN = 28;
+static constexpr uint8_t USER_BUTTON_PIN = 15;
+
+static absolute_time_t last_button_press = 0;
+static constexpr uint16_t USER_BUTTON_DECOMPRESS = 200;
 
 void init()
 {
@@ -27,10 +30,13 @@ void init()
     gpio_pull_up(USER_BUTTON_PIN);
     gpio_set_dir(USER_BUTTON_PIN, GPIO_IN);
     gpio_set_irq_enabled_with_callback(USER_BUTTON_PIN, GPIO_IRQ_EDGE_FALL, true, [](uint, uint32_t) {
+        if (to_ms_since_boot(last_button_press) + USER_BUTTON_DECOMPRESS > to_ms_since_boot(get_absolute_time()))
+            return;
         fortuna::add_event(fortuna::Event {
             .type = fortuna::Event::Type::UserButton,
             .has_data = true,
         });
+        last_button_press = get_absolute_time();
     });
 }
 
