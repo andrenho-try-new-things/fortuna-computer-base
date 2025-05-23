@@ -23,6 +23,8 @@ pico_sdk_init()
 # sources
 #
 
+add_subdirectory(contrib/no-OS-FatFS-SD-SDIO-SPI-RPi-Pico/src)
+
 add_executable(${CMAKE_PROJECT_NAME}
 		demo.cc
 		vga/vga.hh
@@ -37,13 +39,14 @@ add_executable(${CMAKE_PROJECT_NAME}
 		usb/keyboard.cc
 		usb/keyboard.hh
 		fortuna/fortuna.cc
-		fortuna/fortuna.hh)
+		fortuna/fortuna.hh
+		sdcard/hw_config.c)
 
 pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/vga/pio/hsync.pio)
 pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/vga/pio/vsync.pio)
 pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/vga/pio/rgb.pio)
 
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/usb)
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/usb ${CMAKE_SOURCE_DIR}/sdcard)
 target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE -DPROJECT_VERSION=\"${CMAKE_PROJECT_VERSION}\" -DYEAR=\"${YEAR}\")
 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
@@ -51,12 +54,10 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
 	pico_bootsel_via_double_reset
 	hardware_pio 
 	hardware_dma 
-	# hardware_adc
-	# hardware_sync
-	# hardware_irq
 	pico_multicore
 	tinyusb_host
 	tinyusb_board
+	no-OS-FatFS-SD-SDIO-SPI-RPi-Pico
 )
 
 # must match with executable name

@@ -2,7 +2,9 @@
 
 #include "fortuna/fortuna.hh"
 
-// user code will run on CORE 0
+#include "hw_config.h"
+#include "f_util.h"
+#include "ff.h"
 
 static char command[255] = "";
 
@@ -46,7 +48,7 @@ static bool on_key_press(usb::keyboard::Event const& e)
     return false;
 }
 
-void ascii_table() {
+static void ascii_table() {
     vga::text::print("  0123456789ABCDEF\n", false);
     for (uint8_t y = 0; y < 16; ++y) {
         vga::text::printf_noredraw("%X", y);
@@ -62,7 +64,7 @@ void ascii_table() {
     vga::text::redraw();
 }
 
-void longtext()
+static void longtext()
 {
     vga::text::print(R"(Morbi volutpat nisi ut pellentesque aliquet. Aenean luctus justo quis lacus ultricies, semper cursus purus commodo. Donec blandit, enim sagittis dictum faucibus, lectus felis tempor nisi, non pharetra nunc purus quis nibh. Curabitur eu mollis tortor, et finibus velit. Suspendisse commodo ac ligula quis laoreet. Suspendisse sit amet blandit purus. In eu lobortis nibh, ut sagittis elit. Maecenas at nisi ut massa scelerisque gravida. Aliquam tempus sagittis felis, quis rhoncus tortor. Sed ornare, massa vel venenatis molestie, metus metus scelerisque metus, vitae bibendum velit est eu lectus.
 
@@ -74,7 +76,7 @@ Aenean vehicula turpis sed risus convallis fringilla. Fusce id mi varius tortor 
 )");
 }
 
-void table()
+static void table()
 {
     using namespace vga::text;
     print('\n', false);
@@ -129,10 +131,55 @@ void table()
     redraw();
 }
 
+static void sdcard()
+{
+    FATFS fs;
+    FRESULT fr = f_mount(&fs, "", 1);
+    if (FR_OK != fr) {
+        vga::text::set_color(Color::Black, Color::Red);
+        vga::text::printf("Error mounting SDCard: %s\n", FRESULT_str(fr));
+        vga::text::set_color(Color::Black, Color::White);
+        f_unmount("");
+        return;
+    }
+
+    DIR dir;
+    fr = f_opendir(&dir, "/");
+    if (FR_OK != fr) {
+        vga::text::set_color(Color::Black, Color::Red);
+        vga::text::printf("Error reading root directory: %s\n", FRESULT_str(fr));
+        vga::text::set_color(Color::Black, Color::White);
+        f_unmount("");
+        return;
+    }
+
+    FILINFO fno {};
+    for (;;) {
+        fr = f_readdir(&dir, &fno);
+        if (FR_OK != fr) {
+            vga::text::set_color(Color::Black, Color::Red);
+            vga::text::printf("Error reading file: %s\n", FRESULT_str(fr));
+            vga::text::set_color(Color::Black, Color::White);
+            f_unmount("");
+            return;
+        }
+        if (fno.fname[0] == 0)
+            break;
+        if (fno.fattrib & AM_DIR) {            /* Directory */
+            vga::text::printf("   <DIR>   %s\n", fno.fname);
+        } else {                               /* File */
+            vga::text::printf("%10d %s\n", fno.fsize, fno.fname);
+        }
+    }
+    f_closedir(&dir);
+
+    f_unmount("");
+}
+
 void execute_command(const char* cmd)
 {
     if (strcmp(cmd, "help") == 0) {
-        vga::text::print("ascii     cls     font     longtext     table\n");
+        vga::text::print("ascii     cls     font     longtext      sdcard     table\n");
     } else if (strcmp(cmd, "ascii") == 0) {
         ascii_table();
     } else if (strcmp(cmd, "cls") == 0) {
@@ -150,6 +197,8 @@ void execute_command(const char* cmd)
         vga::text::print("Font 'ibm' selected.\n");
     } else if (strcmp(cmd, "font") == 0) {
         vga::text::print("font NUMBER\n");
+    } else if (strcmp(cmd, "sdcard") == 0) {
+        sdcard();
     } else if (strcmp(cmd, "table") == 0) {
         table();
     } else if (cmd[0] != '\0') {
@@ -158,6 +207,8 @@ void execute_command(const char* cmd)
         vga::text::set_color(Color::Black, Color::White);
     }
 }
+
+// user code will run on CORE 0
 
 int main()
 {
