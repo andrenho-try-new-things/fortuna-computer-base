@@ -119,9 +119,9 @@ void table()
 
     print(0xc8, false);
     for (uint8_t i = 0; i < 15; ++i) print(0xcd, false);
-    print(0xcb, false);
+    print(0xca, false);
     for (uint8_t i = 0; i < 10; ++i) print(0xcd, false);
-    print(0xcb, false);
+    print(0xca, false);
     for (uint8_t i = 0; i < 10; ++i) print(0xcd, false);
     print(0xbc, false);
     print("\n\n", false);
