@@ -44,11 +44,11 @@ void fortuna::init(bool print_welcome)
 
     // initialization message
     if (print_welcome) {
-        vga::text::print("Fortuna I/O board version " PROJECT_VERSION "\n\n\n\n\n");
+        vga::text::print("Fortuna I/O board version " PROJECT_VERSION "\n(C) Copyright " YEAR ", Andr\x82 Wagner - free hardware/software released under GPLv3\n\n\n\n");
 
         for (int i = 0; i < 16; ++i)
             for (int x = i * 30 + 50; x < i * 30 + 75; ++x)
-                for (int y = 30; y < 55; ++y)
+                for (int y = 45; y < 70; ++y)
                     vga::fb::draw_pixel(x, y, (Color) i);
     }
 }

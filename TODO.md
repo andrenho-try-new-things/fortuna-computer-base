@@ -19,15 +19,14 @@
 
 - [x] USB keyboard
 - [x] Add version number
-- [ ] Add copyright
-- [ ] Test application
+- [x] Add copyright
+- [x] Test application
   - [x] cls
   - [x] bug with set_cursor
   - [x] longtext
   - [x] font
 - [x] Finalize font
-  - [ ] boxes
-- [ ] Write documentation
+  - [x] boxes
 
 ## Version 0.3
 
@@ -37,8 +36,9 @@
 - [ ] Extra SPI port
 - [ ] UART
 - [ ] WiFi/Bluetooth
-- [ ] Extra button
+- [ ] Extra button / LED
 - [ ] Build circuit
+- [ ] Write documentation
 
 ## Version 0.4
 

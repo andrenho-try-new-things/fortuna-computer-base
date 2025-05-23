@@ -88,9 +88,9 @@ void table()
     print(0xbb, false);
     print('\n', false);
 
-    vga::text::printf("%c%-15s%c%-10s%c%-10s%c\n", 0xba, "Country", 0xba, "Exports", 0xba, "Imports", 0xba);
+    vga::text::printf("%c%-15s%c%-10s%c%-10s%c\n", 0xba, " Country", 0xba, " Exports", 0xba, " Imports", 0xba);
 
-    print(0xc7);
+    print(0xc7, false);
     for (uint8_t i = 0; i < 15; ++i) print(0xc4, false);
     print(0xd7, false);
     for (uint8_t i = 0; i < 10; ++i) print(0xc4, false);
@@ -104,17 +104,17 @@ void table()
         const char* txt;
         float       val1, val2;
     } items[] = {
-        { Color::Lime, "Brazil", 149323.32, 45389.32 },
+        { Color::Lime,   "Brazil", 149323.32, 45389.32 },
+        { Color::Cyan,   "Argentina", 9343.76, 1776.58 },
         { Color::Orange, "Netherlands", 93482.98, 334.12 },
-        { Color::Cyan, "United States", 9343.76, 1776.58 },
-        { Color::Red, "U.S.S.R", -56783.2, 156743.4 },
+        { Color::Red,    "U.S.S.R.", -56783.2, 156743.4 },
     };
     for (auto const& item: items) {
-        print(0xba);
+        print(0xba, false);
         set_color(Color::Black, item.color);
-        vga::text::printf("%-15s", item.txt);
+        printf_noredraw(" %-14s", item.txt);
         set_color(Color::Black, Color::White);
-        vga::text::printf("%c%10.2f%c%10.2f%c\n", 0xba, item.val1, 0xba, item.val2, 0xba);
+        printf_noredraw("%c%10.2f%c%10.2f%c\n", 0xba, item.val1, 0xba, item.val2, 0xba);
     }
 
     print(0xc8, false);

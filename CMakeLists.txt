@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
+string(TIMESTAMP YEAR "%Y")
 
 #
 # configuration
@@ -43,7 +44,7 @@ pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/vga/pio
 pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/vga/pio/rgb.pio)
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/usb)
-target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE -DPROJECT_VERSION=\"${CMAKE_PROJECT_VERSION}\")
+target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE -DPROJECT_VERSION=\"${CMAKE_PROJECT_VERSION}\" -DYEAR=\"${YEAR}\")
 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
 	pico_stdlib 
