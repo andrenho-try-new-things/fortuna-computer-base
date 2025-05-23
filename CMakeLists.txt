@@ -16,7 +16,7 @@ include(pico_sdk_import.cmake)
 # project
 #
 
-project(fortuna-computer-base VERSION 0.9.1)
+project(fortuna-computer-base VERSION 0.3.0)
 pico_sdk_init()
 
 #
