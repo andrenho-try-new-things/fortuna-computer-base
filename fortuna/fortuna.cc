@@ -27,7 +27,12 @@ void core1_entry()
     }
 }
 
-void fortuna::init(bool print_welcome)
+namespace fortuna {
+
+static constexpr uint8_t MAX_EVENTS = 16;
+static Event event_queue[MAX_EVENTS] = {};
+
+void init(bool print_welcome)
 {
     // wait for CORE 1 initialization
     sem_init(&semaphore, 0, 1);
@@ -49,4 +54,33 @@ void fortuna::init(bool print_welcome)
                 for (int y = 45; y < 70; ++y)
                     vga::fb::draw_pixel(x, y, (Color) i);
     }
+}
+
+void add_event(Event const& event)
+{
+    for (uint8_t i = 0; i < MAX_EVENTS; ++i) {
+        if (!event_queue[i].has_data) {
+            event_queue[i] = event;
+            return;
+        }
+    }
+
+    // no space
+    memmove(event_queue, &event_queue[1], sizeof(Event) * (MAX_EVENTS - 1));
+    event_queue[MAX_EVENTS - 1] = event;
+}
+
+bool next_event(Event* event)
+{
+    for (int8_t i = MAX_EVENTS - 1; i >= 0; --i) {
+        if (event_queue[i].has_data) {
+            *event = event_queue[i];
+            event_queue[i].has_data = false;
+            return true;
+        }
+    }
+
+    return false;
+}
+
 }

@@ -1,6 +1,6 @@
 #include "keyboard.hh"
 
-#define MAX_EVENTS 16
+#include "../fortuna/fortuna.hh"
 
 namespace usb::keyboard {
 
@@ -12,40 +12,11 @@ static hid_keyboard_report_t prev = {};
 
 static hid_keyboard_led_bm_t leds = KEYBOARD_LED_NUMLOCK;
 
-static Event event_queue[MAX_EVENTS] = {0};
-
 void init(uint8_t device_id_, uint8_t instance_)
 {
     device_id = device_id_;
     instance = instance_;
     tuh_hid_set_report(device_id, instance, 0, HID_REPORT_TYPE_OUTPUT, &leds, sizeof(leds));
-}
-
-bool next_event(Event* event)
-{
-    for (int8_t i = MAX_EVENTS - 1; i >= 0; --i) {
-        if (event_queue[i].has_data) {
-            *event = event_queue[i];
-            event_queue[i].has_data = false;
-            return true;
-        }
-    }
-
-    return false;
-}
-
-static void add_event(Event const& event)
-{
-    for (uint8_t i = 0; i < MAX_EVENTS; ++i) {
-        if (!event_queue[i].has_data) {
-            event_queue[i] = event;
-            return;
-        }
-    }
-
-    // no space
-    memmove(event_queue, &event_queue[1], sizeof(Event) * (MAX_EVENTS - 1));
-    event_queue[MAX_EVENTS - 1] = event;
 }
 
 static void process_special_key(uint8_t keycode)
@@ -86,14 +57,17 @@ void process_report(hid_keyboard_report_t const* report)
 #endif
 
     auto fire_event = [](hid_keyboard_report_t const* report, uint8_t i, bool pressed) {
-        add_event({
-            .hid_key = report->keycode[i],
-            .chr = keychar(report, i),
-            .ctrl = (bool) (report->modifier & (KEYBOARD_MODIFIER_LEFTCTRL | KEYBOARD_MODIFIER_RIGHTCTRL)),
-            .alt = (bool) (report->modifier & (KEYBOARD_MODIFIER_LEFTALT | KEYBOARD_MODIFIER_RIGHTALT)),
-            .shift = (bool) (report->modifier & (KEYBOARD_MODIFIER_LEFTSHIFT | KEYBOARD_MODIFIER_RIGHTSHIFT)),
-            .pressed = pressed,
+        fortuna::add_event(fortuna::Event {
+            .type = fortuna::Event::Type::Keyboard,
             .has_data = true,
+            .key = {
+                .hid_key = report->keycode[i],
+                .chr = keychar(report, i),
+                .ctrl = (bool) (report->modifier & (KEYBOARD_MODIFIER_LEFTCTRL | KEYBOARD_MODIFIER_RIGHTCTRL)),
+                .alt = (bool) (report->modifier & (KEYBOARD_MODIFIER_LEFTALT | KEYBOARD_MODIFIER_RIGHTALT)),
+                .shift = (bool) (report->modifier & (KEYBOARD_MODIFIER_LEFTSHIFT | KEYBOARD_MODIFIER_RIGHTSHIFT)),
+                .pressed = pressed,
+            }
         });
     };
 

@@ -224,12 +224,16 @@ next_command:
     vga::text::print("? ");
 
     for (;;) {
-        static usb::keyboard::Event e;
-        while (usb::keyboard::next_event(&e)) {
-            if (on_key_press(e)) {
-                execute_command(command);
-                command[0] = '\0';
-                goto next_command;;
+        static fortuna::Event e;
+        while (fortuna::next_event(&e)) {
+            switch (e.type) {
+                case fortuna::Event::Type::Keyboard:
+                    if (on_key_press(e.key)) {
+                        execute_command(command);
+                        command[0] = '\0';
+                        goto next_command;;
+                    }
+                    break;
             }
         }
     }
