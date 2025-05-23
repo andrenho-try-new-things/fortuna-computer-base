@@ -31,12 +31,12 @@
 ## Version 0.3
 
 - [x] SD Card
+- [x] UART
+- [ ] Extra button / LED
 - [ ] Real-time clock + battery
 - [ ] Audio (?)
 - [ ] Extra SPI port
-- [ ] UART
 - [ ] WiFi/Bluetooth
-- [ ] Extra button / LED
 - [ ] Build circuit
 - [ ] Write documentation
 
