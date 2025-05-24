@@ -1,6 +1,7 @@
 #ifndef FORTUNA_HH
 #define FORTUNA_HH
 
+#include "../rtc/rtc.hh"
 #include "../usb/usb.hh"
 #include "../vga/vga.hh"
 #include "../user/user.hh"

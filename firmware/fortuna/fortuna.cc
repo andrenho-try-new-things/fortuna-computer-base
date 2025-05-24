@@ -16,9 +16,10 @@ void core1_entry()
     stdio_uart_init();
     printf("==============================================================\n");
 
-    vga::init();
+    rtc::init();
     usb::init();
     user::init();
+    vga::init();
 
     sem_release(&semaphore);
 

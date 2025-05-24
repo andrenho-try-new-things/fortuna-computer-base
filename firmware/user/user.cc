@@ -11,8 +11,8 @@ static constexpr uint8_t DIP0_PIN = 27;
 static constexpr uint8_t DIP1_PIN = 28;
 static constexpr uint8_t USER_BUTTON_PIN = 15;
 
-static absolute_time_t last_button_press = 0;
 static constexpr uint16_t USER_BUTTON_DECOMPRESS = 200;
+static absolute_time_t last_button_press = 0;
 
 void init()
 {

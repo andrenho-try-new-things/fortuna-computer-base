@@ -27,28 +27,30 @@ add_subdirectory(contrib/no-OS-FatFS-SD-SDIO-SPI-RPi-Pico/src)
 
 add_executable(${CMAKE_PROJECT_NAME}
 		demo.cc
-		vga/vga.hh
-		vga/vga.cc
-		vga/fb.cc
-		vga/fb.hh
-		vga/text.cc
-		vga/text.hh
-		vga/font.hh
-		usb/usb.cc
-		usb/usb.hh
-		usb/keyboard.cc
-		usb/keyboard.hh
-		fortuna/fortuna.cc
-		fortuna/fortuna.hh
-		sdcard/hw_config.c
-		user/user.cc
-		user/user.hh)
+		firmware/vga/vga.hh
+		firmware/vga/vga.cc
+		firmware/vga/fb.cc
+		firmware/vga/fb.hh
+		firmware/vga/text.cc
+		firmware/vga/text.hh
+		firmware/vga/font.hh
+		firmware/usb/usb.cc
+		firmware/usb/usb.hh
+		firmware/usb/keyboard.cc
+		firmware/usb/keyboard.hh
+		firmware/fortuna/fortuna.cc
+		firmware/fortuna/fortuna.hh
+		firmware/sdcard/hw_config.c
+		firmware/user/user.cc
+		firmware/user/user.hh
+		firmware/rtc/rtc.cc
+		firmware/rtc/rtc.hh)
 
-pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/vga/pio/hsync.pio)
-pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/vga/pio/vsync.pio)
-pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/vga/pio/rgb.pio)
+pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/firmware/vga/pio/hsync.pio)
+pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/firmware/vga/pio/vsync.pio)
+pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/firmware/vga/pio/rgb.pio)
 
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/usb ${CMAKE_SOURCE_DIR}/sdcard)
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/firmware/fortuna ${CMAKE_SOURCE_DIR}/firmware/usb ${CMAKE_SOURCE_DIR}/firmware/sdcard)
 target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE -DPROJECT_VERSION=\"${CMAKE_PROJECT_VERSION}\" -DYEAR=\"${YEAR}\")
 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
@@ -57,6 +59,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
 	hardware_pio 
 	hardware_dma
 	hardware_irq
+	pico_aon_timer
 	pico_multicore
 	tinyusb_host
 	tinyusb_board

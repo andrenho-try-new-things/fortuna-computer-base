@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "fortuna/fortuna.hh"
+#include <fortuna.hh>
 
 static char command[255] = "";
 
@@ -172,10 +172,16 @@ static void sdcard()
     f_unmount("");
 }
 
+static void print_date()
+{
+    rtc::DateTime d = rtc::get();
+    vga::text::printf_noredraw("%04d-%02d-%02d %02d:%02d:%02d", d.year, d.month, d.day, d.hours, d.minutes, d.seconds);
+}
+
 void execute_command(const char* cmd)
 {
     if (strcmp(cmd, "help") == 0) {
-        vga::text::print("ascii  cls  font  led  longtext  sdcard  switches  table\n");
+        vga::text::print("ascii  cls  font  led  longtext  sdcard  switches  table  time\n");
     } else if (strcmp(cmd, "ascii") == 0) {
         ascii_table();
     } else if (strcmp(cmd, "cls") == 0) {
@@ -206,6 +212,9 @@ void execute_command(const char* cmd)
         vga::text::printf("%d%d\n", s & 1, (s >> 1) & 1);
     } else if (strcmp(cmd, "table") == 0) {
         table();
+    } else if (strcmp(cmd, "time") == 0) {
+        print_date();
+        vga::text::print('\n');
     } else if (cmd[0] != '\0') {
         vga::text::set_color(Color::Black, Color::Red);
         vga::text::print("Error.\n");
@@ -218,7 +227,8 @@ void execute_command(const char* cmd)
 int main()
 {
     fortuna::init(true);
-    vga::text::print("Type 'help' for help.\n");
+    vga::text::print("Current date/time is ", false); print_date(); vga::text::print(".\n", false);
+    vga::text::print("Type 'help' for help.\n\n");
 
 next_command:
     vga::text::print("? ");

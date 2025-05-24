@@ -37,7 +37,7 @@
 - [ ] Audio (?)
 - [ ] Extra SPI port
 - [ ] WiFi/Bluetooth
-- [ ] Build circuit
+- [ ] Transform in library
 - [ ] Write documentation
 
 ## Version 0.4
