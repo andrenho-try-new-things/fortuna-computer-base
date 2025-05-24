@@ -33,7 +33,7 @@
 - [x] SD Card
 - [x] UART
 - [x] Extra button / LED
-- [ ] Real-time clock + battery
+- [x] Real-time clock + battery
 - [ ] Audio (?)
 - [ ] Extra SPI port
 - [ ] WiFi/Bluetooth
