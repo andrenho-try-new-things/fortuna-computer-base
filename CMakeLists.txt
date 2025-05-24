@@ -59,6 +59,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
 	hardware_pio 
 	hardware_dma
 	hardware_irq
+	hardware_i2c
 	pico_aon_timer
 	pico_multicore
 	tinyusb_host

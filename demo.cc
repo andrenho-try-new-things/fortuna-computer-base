@@ -178,10 +178,29 @@ static void print_date()
     vga::text::printf_noredraw("%04d-%02d-%02d %02d:%02d:%02d", d.year, d.month, d.day, d.hours, d.minutes, d.seconds);
 }
 
+static void set_time(const char* cmd)
+{
+    int yy, mm, dd, hh, nn, ss;
+    int n = sscanf(cmd, "settime %d %d %d %d %d %d", &yy, &mm, &dd, &hh, &nn, &ss);
+    if (n == 6) {
+        rtc::set(rtc::DateTime {
+            .year = (uint16_t) yy,
+            .month = (uint8_t) mm,
+            .day = (uint8_t) dd,
+            .hours = (uint8_t) hh,
+            .minutes = (uint8_t) nn,
+            .seconds = (uint8_t) ss,
+        });
+
+    } else {
+        vga::text::print("settime YY MM DD HH NN SS\n");
+    }
+}
+
 void execute_command(const char* cmd)
 {
     if (strcmp(cmd, "help") == 0) {
-        vga::text::print("ascii  cls  font  led  longtext  sdcard  switches  table  time\n");
+        vga::text::print("ascii  cls  font  led  longtext  sdcard  settime  switches  table  time\n");
     } else if (strcmp(cmd, "ascii") == 0) {
         ascii_table();
     } else if (strcmp(cmd, "cls") == 0) {
@@ -215,6 +234,8 @@ void execute_command(const char* cmd)
     } else if (strcmp(cmd, "time") == 0) {
         print_date();
         vga::text::print('\n');
+    } else if (strncmp(cmd, "settime", 7) == 0) {
+        set_time(cmd);
     } else if (cmd[0] != '\0') {
         vga::text::set_color(Color::Black, Color::Red);
         vga::text::print("Error.\n");
