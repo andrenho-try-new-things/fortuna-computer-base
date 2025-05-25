@@ -8,7 +8,7 @@ the user decides to implement.
 
 The board and accompanying firmware library provides:
 
- - 1 Raspberry Pi Pico 2 W core available for user implementation
+ - 1 Raspberry Pi Pico 2 W core available for user implementation (3.8 MB flash and 350 kB RAM free)
  - USB power with on/off switch
  - VGA output at (640x480) in 16 colors
  - VGA text mode with 2 different fonts (80x35)
@@ -19,6 +19,7 @@ The board and accompanying firmware library provides:
  - audio output via headphone jack
  - user panel composed of two leds, one pushbutton and 2x microswitch
  - an external SPI interface (via a 5x2 pin IDC connector), allowing the board to be controller externally
+ - Wi-Fi and Bluetooth via Pico Pi 2 W
 
 ## Schematic
 
