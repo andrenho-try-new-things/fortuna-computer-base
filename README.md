@@ -20,7 +20,11 @@ The board and accompanying firmware library provides:
  - user panel composed of two leds, one pushbutton and 2x microswitch
  - an external SPI interface (via a 5x2 pin IDC connector), allowing the board to be controller externally
 
-## Using in a project
+## Schematic
+
+[Download](https://github.com/andrenho-try-new-things/fortuna-io-board/blob/master/schematic/fortuna-io-board.pdf)
+
+## Using it in a project
 
 Look at `example/CMakeLists.txt` and `example/demo.cc` for an example on how to import and use the library.
 
