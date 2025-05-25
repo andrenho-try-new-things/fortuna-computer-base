@@ -34,13 +34,19 @@
 - [x] UART
 - [x] Extra button / LED
 - [x] Real-time clock + battery
-- [ ] Audio (?)
-- [ ] Extra SPI port
-- [ ] WiFi/Bluetooth
-- [ ] Transform in library
-- [ ] Write documentation
 
 ## Version 0.4
+
+- [ ] Extra SPI port
+- [ ] Transform in library
+
+## Version 0.4
+
+- [ ] Audio (?)
+- [ ] WiFi/Bluetooth
+- [ ] Write documentation
+
+## Version 0.5
 
 - [ ] VGA mode 2 at lower resolution (320x200)
 - [ ] More drawing primitives (?)
