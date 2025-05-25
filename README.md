@@ -1,13 +1,13 @@
 # Fortuna IO board
 
-**Fortuna I/O board** is a board that provides I/O, and can be used to build a custom computer.
+**Fortuna I/O board** is a board that provides multiple I/O ports, and can be used to build a custom computer.
+
+![Board](photos/board.jpg)
+![VGA](photos/vga.jpg)
 
 The board main component is a [Raspberry Pi Pico 2 W](https://www.raspberrypi.com/products/raspberry-pi-pico-2/), which
 has 2 processor cores. The 2nd core is used for managing the board I/O, leaving the 1st board available for whatever
 the user decides to implement.
-
-![Board](photos/board.jpg)
-![VGA](photos/vga.jpg)
 
 The board and accompanying firmware library provides:
 
