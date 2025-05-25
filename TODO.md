@@ -37,8 +37,8 @@
 
 ## Version 0.4
 
-- [ ] Extra SPI port
 - [ ] Transform in library
+- [ ] Extra SPI port
 - [ ] Create examples
   - [ ] Demo
   - [ ] VT220 serial
