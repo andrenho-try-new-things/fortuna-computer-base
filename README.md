@@ -22,8 +22,8 @@ The board and accompanying firmware library provides:
 
 ## Schematic
 
-![Schematic](https://github.com/andrenho-try-new-things/fortuna-io-board/blob/master/schematic/pi-pico-vga.svg)
-[Download](https://github.com/andrenho-try-new-things/fortuna-io-board/blob/master/schematic/fortuna-io-board.pdf)
+![Schematic](schematic/pi-pico-vga.svg)
+[Download PDF](schematic/fortuna-io-board.pdf)
 
 ## Using it in a project
 
