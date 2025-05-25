@@ -1,2 +1,0 @@
-https://github.com/vruivo/pico_read_usb_keyboard?tab=readme-ov-file
-https://github.com/raspberrypi/pico-examples/tree/master/usb/host/host_cdc_msc_hid

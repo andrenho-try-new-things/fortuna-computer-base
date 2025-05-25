@@ -39,12 +39,15 @@
 
 - [ ] Extra SPI port
 - [ ] Transform in library
+- [ ] Create examples
+  - [ ] Demo
+  - [ ] VT220 serial
 
 ## Version 0.4
 
 - [ ] Audio (?)
 - [ ] WiFi/Bluetooth
-- [ ] Write documentation
+- [ ] Write documentation / rename
 
 ## Version 0.5
 
