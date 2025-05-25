@@ -8,6 +8,8 @@ pico_sdk_init()
 
 add_subdirectory(../library build)
 
+add_compile_options(${CMAKE_PROJECT_NAME} -O3)
+
 add_executable(${CMAKE_PROJECT_NAME}
     demo.cc)
 
@@ -24,5 +26,3 @@ add_custom_target(upload-remote
         COMMENT "Uploading remotely..."
         VERBATIM
 )
-
-add_compile_options(${CMAKE_PROJECT_NAME} -O3)

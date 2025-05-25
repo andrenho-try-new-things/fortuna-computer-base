@@ -10725,7 +10725,7 @@
 				)
 			)
 		)
-		(property "Value" "Microdip"
+		(property "Value" "Microswitch"
 			(at 132.08 146.05 0)
 			(effects
 				(font
