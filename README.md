@@ -40,6 +40,6 @@ To build the demo:
 ```shell
 mkdir -p example/build
 cd example/build
-cmake -DPICO_SDK_PATH=~/pico-sdk -DPICOTOOL_FETCH_FROM_GIT_PATH=~/picotool ..   # replace with your directories
+cmake -DPICO_SDK_PATH=~/pico-sdk -DPICOTOOL_FETCH_FROM_GIT_PATH=~/picotool -DPICO_BOARD=pico2 ..   # replace with your directories
 make
 ```
