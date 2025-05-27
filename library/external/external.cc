@@ -36,24 +36,4 @@ void init()
     spi0_hw->imsc = SPI_SSPIMSC_RXIM_BITS | SPI_SSPIMSC_RTIM_BITS;
 }
 
-void step()
-{
-    /*
-    if (spi_is_readable(spi0)) {
-        uint8_t i = 0;
-        fortuna::Event e = {
-            .type = fortuna::Event::Type::External,
-            .external = Buffer(),
-        };
-        while (spi_is_readable(spi0)  && i < BUFFER_RECV_SZ) {
-            uint8_t recv = spi_get_hw(spi0)->dr;
-            e.external.data[i++] = (uint8_t) spi0_hw->dr;
-            e.external.sz = i;
-        }
-        if (e.external.sz > 0)
-            fortuna::add_event(e);
-    }
-    */
-}
-
 }

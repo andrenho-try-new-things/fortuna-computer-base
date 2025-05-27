@@ -13,7 +13,6 @@ struct Buffer {
 };
 
 void init();
-void step();
 
 }
 
