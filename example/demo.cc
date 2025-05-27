@@ -269,7 +269,10 @@ next_command:
                     vga::text::print(" [USER BUTTON PRESSED] ");
                     break;
                 case fortuna::Event::Type::External:
-                    vga::text::printf(" [SPI %02X] ", e.buffer[0]);
+                    vga::text::print(" [ SPI ", false);
+                    for (uint8_t i = 0; i < e.external.sz; ++i)
+                        vga::text::printf_noredraw("%02X ", e.external.data[i]);
+                    vga::text::print("] ");
                     break;
             }
         }

@@ -27,7 +27,7 @@ void core1_entry()
 
     for (;;) {
         usb::step();
-        external::step();
+        // external::step();
     }
 }
 

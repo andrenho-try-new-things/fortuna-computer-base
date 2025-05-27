@@ -17,7 +17,7 @@ struct __attribute__((packed)) Event {
     Type type     : 8;
     union {
         usb::keyboard::Event key;
-        uint8_t              buffer[external::BUFFER_RECV_SZ];
+        external::Buffer     external;
     };
 };
 
