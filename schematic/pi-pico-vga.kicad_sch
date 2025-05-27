@@ -6321,6 +6321,17 @@
 		)
 		(uuid "ed115636-70aa-4a87-b24e-bdb374eed06a")
 	)
+	(text "These two\nare inverted ------>\non pourpose"
+		(exclude_from_sim no)
+		(at 66.802 91.694 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "efa75812-3496-432c-b042-580c062b723c")
+	)
 	(junction
 		(at 119.38 153.67)
 		(diameter 0)
@@ -8159,7 +8170,7 @@
 		)
 		(uuid "28ff8b2d-7775-4c2e-b4bb-b84201dbb51b")
 	)
-	(label "MISO"
+	(label "MOSI"
 		(at 91.44 93.98 0)
 		(effects
 			(font
@@ -8271,7 +8282,7 @@
 		)
 		(uuid "63ff80f7-d2fe-4a12-b9bd-ff10b62f41a8")
 	)
-	(label "MOSI"
+	(label "MISO"
 		(at 91.44 91.44 0)
 		(effects
 			(font
