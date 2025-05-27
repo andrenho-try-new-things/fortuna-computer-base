@@ -59,7 +59,6 @@ void process_report(hid_keyboard_report_t const* report)
     auto fire_event = [](hid_keyboard_report_t const* report, uint8_t i, bool pressed) {
         fortuna::add_event(fortuna::Event {
             .type = fortuna::Event::Type::Keyboard,
-            .has_data = true,
             .key = {
                 .hid_key = report->keycode[i],
                 .chr = keychar(report, i),

@@ -4,6 +4,7 @@
 
 #include <pico/stdlib.h>
 #include <pico/multicore.h>
+#include <pico/util/queue.h>
 
 static semaphore_t semaphore;
 
@@ -20,18 +21,20 @@ void core1_entry()
     usb::init();
     user::init();
     vga::init();
+    external::init();
 
     sem_release(&semaphore);
 
     for (;;) {
         usb::step();
+        external::step();
     }
 }
 
 namespace fortuna {
 
-static constexpr uint8_t MAX_EVENTS = 16;
-static Event event_queue[MAX_EVENTS] = {};
+static constexpr uint8_t MAX_EVENTS = 64;
+static queue_t event_queue;
 
 void init(bool print_welcome)
 {
@@ -39,6 +42,9 @@ void init(bool print_welcome)
     sem_init(&semaphore, 0, 1);
     multicore_launch_core1(core1_entry);
     sem_acquire_blocking(&semaphore);
+
+    // initialize event queue
+    queue_init(&event_queue, sizeof(Event), MAX_EVENTS);
 
     // add points to corner of the screen, to facilitate monitor calibration
     vga::fb::draw_pixel(0, 0, Color::DarkGreen);
@@ -59,29 +65,12 @@ void init(bool print_welcome)
 
 void add_event(Event const& event)
 {
-    for (uint8_t i = 0; i < MAX_EVENTS; ++i) {
-        if (!event_queue[i].has_data) {
-            event_queue[i] = event;
-            return;
-        }
-    }
-
-    // no space
-    memmove(event_queue, &event_queue[1], sizeof(Event) * (MAX_EVENTS - 1));
-    event_queue[MAX_EVENTS - 1] = event;
+    queue_try_add(&event_queue, &event);
 }
 
 bool next_event(Event* event)
 {
-    for (int8_t i = MAX_EVENTS - 1; i >= 0; --i) {
-        if (event_queue[i].has_data) {
-            *event = event_queue[i];
-            event_queue[i].has_data = false;
-            return true;
-        }
-    }
-
-    return false;
+    return queue_try_remove(&event_queue, event);
 }
 
 }

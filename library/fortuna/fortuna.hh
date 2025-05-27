@@ -13,9 +13,8 @@
 namespace fortuna {
 
 struct __attribute__((packed)) Event {
-    enum class Type { UserButton, Keyboard, External };
-    Type type     : 7;
-    bool has_data : 1;
+    enum class Type : uint8_t { UserButton, Keyboard, External };
+    Type type     : 8;
     union {
         usb::keyboard::Event key;
         uint8_t              buffer[external::BUFFER_RECV_SZ];

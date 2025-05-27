@@ -268,6 +268,9 @@ next_command:
                 case fortuna::Event::Type::UserButton:
                     vga::text::print(" [USER BUTTON PRESSED] ");
                     break;
+                case fortuna::Event::Type::External:
+                    vga::text::printf(" [SPI %02X] ", e.buffer[0]);
+                    break;
             }
         }
     }

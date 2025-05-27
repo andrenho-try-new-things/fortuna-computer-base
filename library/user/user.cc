@@ -34,7 +34,6 @@ void init()
             return;
         fortuna::add_event(fortuna::Event {
             .type = fortuna::Event::Type::UserButton,
-            .has_data = true,
         });
         last_button_press = get_absolute_time();
     });
