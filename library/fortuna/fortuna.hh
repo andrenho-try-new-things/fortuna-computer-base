@@ -5,6 +5,7 @@
 #include "../usb/usb.hh"
 #include "../vga/vga.hh"
 #include "../user/user.hh"
+#include "../external/external.hh"
 #include "hw_config.h"
 #include "f_util.h"
 #include "ff.h"
@@ -12,11 +13,12 @@
 namespace fortuna {
 
 struct __attribute__((packed)) Event {
-    enum class Type { UserButton, Keyboard };
+    enum class Type { UserButton, Keyboard, External };
     Type type     : 7;
     bool has_data : 1;
     union {
         usb::keyboard::Event key;
+        uint8_t              buffer[external::BUFFER_RECV_SZ];
     };
 };
 

@@ -39,6 +39,8 @@
 
 - [ ] Transform in library
 - [ ] Extra SPI port
+  - [ ] Move SPI/USB code to interrupts
+    - [ ] USB: https://forums.raspberrypi.com/viewtopic.php?t=333027
 - [ ] Create examples
   - [ ] Demo
   - [ ] VT220 serial

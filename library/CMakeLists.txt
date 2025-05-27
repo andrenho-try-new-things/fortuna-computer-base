@@ -19,7 +19,9 @@ pico_sdk_init()
 
 project(fortuna-io-board VERSION 0.4.0)
 
-add_library(${PROJECT_NAME} INTERFACE)
+add_library(${PROJECT_NAME} INTERFACE
+		external/external.cc
+		external/external.hh)
 
 #
 # sources
@@ -41,6 +43,8 @@ target_sources(${PROJECT_NAME} INTERFACE
 		${CMAKE_CURRENT_LIST_DIR}/usb/keyboard.hh
 		${CMAKE_CURRENT_LIST_DIR}/fortuna/fortuna.cc
 		${CMAKE_CURRENT_LIST_DIR}/fortuna/fortuna.hh
+		${CMAKE_CURRENT_LIST_DIR}/external/external.cc
+		${CMAKE_CURRENT_LIST_DIR}/external/external.hh
 		${CMAKE_CURRENT_LIST_DIR}/sdcard/hw_config.c
 		${CMAKE_CURRENT_LIST_DIR}/user/user.cc
 		${CMAKE_CURRENT_LIST_DIR}/user/user.hh
