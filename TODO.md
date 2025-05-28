@@ -51,12 +51,16 @@
 
 ## Version 2.0
 
+- [ ] Github actions - generate uf2
+- [ ] VGA mode 2 at lower resolution (320x200)
+  - [ ] Tiles and sprites?
+  - [ ] Doublebuffer
+- [ ] USB
+  - [ ] Mouse
+  - [ ] Joystick
 - [ ] Advanced audio
   - [ ] Multiple channels (?)
   - [ ] Samples using PIO (?)
   - [ ] Noise
-- [ ] VGA mode 2 at lower resolution (320x200)
-  - [ ] Tiles and sprites?
 - [ ] More drawing primitives (?)
 - [ ] More fonts (?)
-- [ ] Github actions - generate uf2

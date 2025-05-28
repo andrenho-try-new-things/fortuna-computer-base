@@ -200,7 +200,7 @@ static void set_time(const char* cmd)
 void execute_command(const char* cmd)
 {
     if (strcmp(cmd, "help") == 0) {
-        vga::text::print("audio  ascii  cls  font  led  longtext  noise  sdcard  settime  switches  table  time\n");
+        vga::text::print("audio  ascii  cls  font  led  longtext  sdcard  settime  switches  table  time\n");
     } else if (strcmp(cmd, "audio") == 0) {
         audio::play_music(false);
     } else if (strcmp(cmd, "ascii") == 0) {
