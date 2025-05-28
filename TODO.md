@@ -42,14 +42,14 @@
 - [x] Create examples
   - [x] Demo
 
-## Version 0.9
+## Version 1.0
 
 - [x] Audio (?)
   - [x] All notes
 - [x] WiFi/Bluetooth
-- [ ] Write documentation / rename
+- [x] Write documentation / rename
 
-## Version 1.0
+## Version 2.0
 
 - [ ] Advanced audio
   - [ ] Multiple channels (?)
