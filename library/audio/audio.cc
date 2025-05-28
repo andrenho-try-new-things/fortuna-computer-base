@@ -46,6 +46,18 @@ void set_music(Sound* sounds, size_t sz)
     music_sz = sz;
 }
 
+static void play_sound(Sound const& sound)
+{
+    if (sound.note == Pause) {
+        pwm_set_enabled(slice_no, false);
+    } else {
+        auto [top, divider] = pwm_top((float) sound.note / 1000.f);
+        pwm_set_clkdiv(slice_no, divider);
+        pwm_set_wrap(slice_no, top);
+        pwm_set_chan_level(slice_no, channel, top / 2);
+    }
+}
+
 static int64_t play_next_note(alarm_id_t id = -1, void *user_data = nullptr)
 {
     if (!music_playing) {
@@ -62,21 +74,24 @@ static int64_t play_next_note(alarm_id_t id = -1, void *user_data = nullptr)
         }
     }
 
-    if (music[current_note].note == Pause) {
-        pwm_set_enabled(slice_no, false);
-    } else {
-        auto [top, divider] = pwm_top((float) music[current_note].note / 1000.f);
-        pwm_set_clkdiv(slice_no, divider);
-        pwm_set_wrap(slice_no, top);
-        pwm_set_chan_level(slice_no, channel, top / 2);
-        pwm_set_enabled(slice_no, true);
-    }
+    play_sound(music[current_note]);
 
     ++current_note;
     if (id != -1)
         alarm_pool_cancel_alarm(alarm_pool, id);
     alarm_pool_add_alarm_in_ms(alarm_pool, music[current_note].time, play_next_note, nullptr, true);
     return 0;
+}
+
+void play_single_note(Sound const& sound)
+{
+    if (!music_playing) {
+        play_sound(sound);
+        alarm_pool_add_alarm_in_ms(alarm_pool, sound.time, [](alarm_id_t, void*) -> int64_t {
+            pwm_set_enabled(slice_no, false);
+            return 0;
+        }, nullptr, true);
+    }
 }
 
 void play_music(bool nonstop)

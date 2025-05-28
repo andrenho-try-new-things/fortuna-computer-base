@@ -200,7 +200,7 @@ static void set_time(const char* cmd)
 void execute_command(const char* cmd)
 {
     if (strcmp(cmd, "help") == 0) {
-        vga::text::print("audio  ascii  cls  font  led  longtext  sdcard  settime  switches  table  time\n");
+        vga::text::print("audio  ascii  cls  font  led  longtext  noise  sdcard  settime  switches  table  time\n");
     } else if (strcmp(cmd, "audio") == 0) {
         audio::play_music(false);
     } else if (strcmp(cmd, "ascii") == 0) {
@@ -228,6 +228,8 @@ void execute_command(const char* cmd)
         user::set_led(false);
     } else if (strcmp(cmd, "led 1") == 0) {
         user::set_led(true);
+    } else if (strcmp(cmd, "noise") == 0) {
+        audio::play_single_note(audio::Sound { audio::C3, 500 });
     } else if (strcmp(cmd, "switches") == 0) {
         uint8_t s = user::get_dipswitch();
         vga::text::printf("%d%d\n", s & 1, (s >> 1) & 1);
@@ -245,19 +247,51 @@ void execute_command(const char* cmd)
     }
 }
 
+static const audio::Sound music[] = {
+    { audio::Note::C4, 300 },
+    { audio::Note::D4, 300 },
+    { audio::Note::E4, 300 },
+    { audio::Note::F4, 300 },
+    { audio::Note::Pause, 100 },
+    { audio::Note::F4, 100 },
+    { audio::Note::Pause, 100 },
+    { audio::Note::F4, 200 },
+
+    { audio::Note::C4, 300 },
+    { audio::Note::D4, 300 },
+    { audio::Note::C4, 300 },
+    { audio::Note::D4, 300 },
+    { audio::Note::Pause, 100 },
+    { audio::Note::D4, 100 },
+    { audio::Note::Pause, 100 },
+    { audio::Note::D4, 300 },
+
+    { audio::Note::C4, 300 },
+    { audio::Note::G4, 300 },
+    { audio::Note::F4, 300 },
+    { audio::Note::E4, 300 },
+    { audio::Note::Pause, 100 },
+    { audio::Note::E4, 100 },
+    { audio::Note::Pause, 100 },
+    { audio::Note::E4, 200 },
+
+    { audio::Note::C4, 300 },
+    { audio::Note::D4, 300 },
+    { audio::Note::E4, 300 },
+    { audio::Note::F4, 300 },
+    { audio::Note::Pause, 100 },
+    { audio::Note::F4, 100 },
+    { audio::Note::Pause, 100 },
+    { audio::Note::F4, 200 },
+};
+
 // user code will run on CORE 0
 
 int main()
 {
     fortuna::init(true);
 
-    audio::Sound sounds[] = {
-        { audio::Note::C4, 1000 },
-        { audio::Note::D4, 1000 },
-        { audio::Note::E4, 1000 },
-        { audio::Note::F4, 1000 },
-    };
-    audio::set_music(sounds, sizeof(sounds) / sizeof sounds[0]);
+    audio::set_music((audio::Sound*) music, sizeof(music) / sizeof music[0]);
 
     vga::text::print("Current date/time is ", false); print_date(); vga::text::print(".\n", false);
     vga::text::print("Type 'help' for help.\n\n");
