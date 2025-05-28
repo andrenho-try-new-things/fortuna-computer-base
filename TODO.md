@@ -48,7 +48,6 @@
   - [x] All notes
 - [x] WiFi/Bluetooth
 - [x] Write documentation / rename
-- [ ] Github actions - generate uf2
 
 ## Version 2.0
 
@@ -60,3 +59,4 @@
   - [ ] Tiles and sprites?
 - [ ] More drawing primitives (?)
 - [ ] More fonts (?)
+- [ ] Github actions - generate uf2
