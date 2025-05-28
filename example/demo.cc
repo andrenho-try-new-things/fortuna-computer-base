@@ -251,6 +251,9 @@ int main()
     vga::text::print("Current date/time is ", false); print_date(); vga::text::print(".\n", false);
     vga::text::print("Type 'help' for help.\n\n");
 
+    uint8_t data[128]; for (int i = 0; i < 128; ++i) data[i] = i;
+    external::add_response(data, 128);
+
 next_command:
     vga::text::print("? ");
 

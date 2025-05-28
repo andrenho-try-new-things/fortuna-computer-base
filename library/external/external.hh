@@ -13,6 +13,9 @@ struct Buffer {
 };
 
 void init();
+void add_response(uint8_t* data, size_t sz);
+void change_default_response(uint8_t value);
+void send_request_to_event_queue(bool value);
 
 }
 
