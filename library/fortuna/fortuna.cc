@@ -22,6 +22,7 @@ void core1_entry()
     user::init();
     vga::init();
     external::init();
+    audio::init();
 
     sem_release(&semaphore);
 
