@@ -2,7 +2,7 @@
 
 **Fortuna I/O board** is a board that provides multiple I/O ports, and can be used to build a custom computer.
 
-![Board](photos/board.jpg)
+![Board](photos/board2.jpg)
 ![VGA](photos/vga.jpg)
 
 The board main component is a [Raspberry Pi Pico 2 W](https://www.raspberrypi.com/products/raspberry-pi-pico-2/), which
