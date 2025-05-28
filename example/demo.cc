@@ -202,7 +202,7 @@ void execute_command(const char* cmd)
     if (strcmp(cmd, "help") == 0) {
         vga::text::print("audio  ascii  cls  font  led  longtext  sdcard  settime  switches  table  time\n");
     } else if (strcmp(cmd, "audio") == 0) {
-
+        audio::play_music(false);
     } else if (strcmp(cmd, "ascii") == 0) {
         ascii_table();
     } else if (strcmp(cmd, "cls") == 0) {
@@ -250,6 +250,15 @@ void execute_command(const char* cmd)
 int main()
 {
     fortuna::init(true);
+
+    audio::Sound sounds[] = {
+        { audio::Note::C4, 1000 },
+        { audio::Note::D4, 1000 },
+        { audio::Note::E4, 1000 },
+        { audio::Note::F4, 1000 },
+    };
+    audio::set_music(sounds, sizeof(sounds) / sizeof sounds[0]);
+
     vga::text::print("Current date/time is ", false); print_date(); vga::text::print(".\n", false);
     vga::text::print("Type 'help' for help.\n\n");
 

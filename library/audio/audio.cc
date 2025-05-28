@@ -1,52 +1,96 @@
 #include "audio.hh"
 
 #include <cstdint>
+#include <cstring>
+#include <cstdlib>
+#include <utility>
 #include <hardware/clocks.h>
 #include <hardware/gpio.h>
 #include <hardware/pwm.h>
+#include <pico/util/queue.h>
 
 namespace audio {
 
 static constexpr uint8_t AUDIO_PIN = 7;
+static uint slice_no;
+static uint channel;
 
+static Sound* music = nullptr;
+static size_t music_sz = 0;
+static size_t current_note = 0;
+static bool   music_nonstop = false;
+static bool   music_playing = false;
 
-static void set_frequency(uint8_t slice_no, float frequency)
+static alarm_pool_t* alarm_pool;
+
+static const std::pair<uint16_t, uint16_t> pwm_top(float desired_frequency, uint16_t divider=128)
 {
-    // PWM frequency = clock_freq / (divider * (wrap + 1))
-    float clock_freq = clock_get_hz(clk_sys);
-
-    // Target: 50% duty cycle, reasonable wrap value
-    uint32_t divider = (uint32_t)(clock_freq / (frequency * 65536.0f));
-    if (divider < 1) divider = 1;
-    if (divider > 255) divider = 255;
-
-    uint32_t wrap = (uint32_t)(clock_freq / (frequency * divider)) - 1;
-
-    // Set the divider and wrap
-    pwm_set_clkdiv(slice_no, (float)divider);
-    pwm_set_wrap(slice_no, wrap);
-
-    // Set 50% duty cycle
-    pwm_set_chan_level(slice_no, PWM_CHAN_B, wrap / 2);
+    uint64_t top = SYS_CLK_HZ / desired_frequency / divider;
+    if (top > 65535)
+        return pwm_top(desired_frequency, divider / 2);
+    return { top, divider };
 }
 
 void init()
 {
     gpio_set_function(AUDIO_PIN, GPIO_FUNC_PWM);
-    uint slice_no = pwm_gpio_to_slice_num(AUDIO_PIN);
-    uint channel = pwm_gpio_to_channel(AUDIO_PIN);
+    slice_no = pwm_gpio_to_slice_num(AUDIO_PIN);
+    channel = pwm_gpio_to_channel(AUDIO_PIN);
+    alarm_pool = alarm_pool_create_with_unused_hardware_alarm(2);   // allows running alarm on core 1
+}
 
-    /*
-    pwm_config config = pwm_get_default_config();
-    pwm_init(slice_no, &config, false);
+void set_music(Sound* sounds, size_t sz)
+{
+    music = (Sound *) realloc(music, sz * sizeof(Sound));
+    memcpy(music, sounds, sz * sizeof(Sound));
+    music_sz = sz;
+}
 
-    set_frequency(slice_no, 440);
-    pwm_set_enabled(slice_no, true);
-    */
+static int64_t play_next_note(alarm_id_t id = -1, void *user_data = nullptr)
+{
+    if (!music_playing) {
+        pwm_set_enabled(slice_no, false);
+        return 0;
+    }
 
-    pwm_set_wrap(slice_no, 50000);
-    pwm_set_chan_level(slice_no, channel, 50000 / 2);
-    pwm_set_enabled(slice_no, true);
+    if (current_note >= music_sz) {
+        if (music_nonstop) {
+            current_note = 0;
+        } else {
+            pwm_set_enabled(slice_no, false);
+            return 0;
+        }
+    }
+
+    if (music[current_note].note == Pause) {
+        pwm_set_enabled(slice_no, false);
+    } else {
+        auto [top, divider] = pwm_top((float) music[current_note].note / 1000.f);
+        pwm_set_clkdiv(slice_no, divider);
+        pwm_set_wrap(slice_no, top);
+        pwm_set_chan_level(slice_no, channel, top / 2);
+        pwm_set_enabled(slice_no, true);
+    }
+
+    ++current_note;
+    if (id != -1)
+        alarm_pool_cancel_alarm(alarm_pool, id);
+    alarm_pool_add_alarm_in_ms(alarm_pool, music[current_note].time, play_next_note, nullptr, true);
+    return 0;
+}
+
+void play_music(bool nonstop)
+{
+    music_nonstop = nonstop;
+    current_note = 0;
+    music_playing = true;
+    play_next_note();
+}
+
+void stop_music()
+{
+    music_playing = false;
+    current_note = 0;
 }
 
 }

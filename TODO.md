@@ -37,21 +37,25 @@
 
 ## Version 0.4
 
-- [ ] Transform in library
-- [ ] Extra SPI port
-  - [ ] Move SPI/USB code to interrupts
-    - [ ] USB: https://forums.raspberrypi.com/viewtopic.php?t=333027
-- [ ] Create examples
-  - [ ] Demo
-  - [ ] VT220 serial
+- [x] Transform in library
+- [x] Extra SPI port
+- [x] Create examples
+  - [x] Demo
 
-## Version 0.4
+## Version 0.9
 
-- [ ] Audio (?)
-- [ ] WiFi/Bluetooth
+- [x] Audio (?)
+  - [ ] All notes
+  - [ ] Noise
+- [x] WiFi/Bluetooth
 - [ ] Write documentation / rename
 
-## Version 0.5
+## Version 1.0
 
+- [ ] Advanced audio
+  - [ ] Multiple channels (?)
+  - [ ] Samples using PIO (?)
 - [ ] VGA mode 2 at lower resolution (320x200)
+  - [ ] Tiles and sprites?
 - [ ] More drawing primitives (?)
+- [ ] More fonts (?)
