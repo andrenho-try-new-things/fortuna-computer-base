@@ -45,8 +45,7 @@
 ## Version 0.9
 
 - [x] Audio (?)
-  - [ ] All notes
-  - [ ] Noise
+  - [x] All notes
 - [x] WiFi/Bluetooth
 - [ ] Write documentation / rename
 
@@ -55,6 +54,7 @@
 - [ ] Advanced audio
   - [ ] Multiple channels (?)
   - [ ] Samples using PIO (?)
+  - [ ] Noise
 - [ ] VGA mode 2 at lower resolution (320x200)
   - [ ] Tiles and sprites?
 - [ ] More drawing primitives (?)
