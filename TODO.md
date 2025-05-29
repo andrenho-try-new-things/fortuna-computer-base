@@ -51,8 +51,9 @@
 
 ## Version 2.0
 
-- [ ] Configurable initialization
-- [ ] General code review
+- [x] Configurable initialization
+- [x] General code review
+- [x] Print total RAM usage
 - [ ] User panel
   - [ ] Detect changes to dipswitch
 - [ ] VGA improvements
@@ -64,7 +65,6 @@
 
 ## Version 2.1
 
-- [ ] SDCard - link to RTC
 - [ ] VGA mode 2 at lower resolution (320x200)
   - [ ] Drawing primitives
   - [ ] Tiles and sprites

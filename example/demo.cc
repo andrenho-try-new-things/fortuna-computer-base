@@ -200,7 +200,19 @@ static void set_time(const char* cmd)
 void execute_command(const char* cmd)
 {
     if (strcmp(cmd, "help") == 0) {
-        vga::text::print("audio  ascii  cls  font  led  longtext  sdcard  settime  switches  table  time\n");
+        vga::text::print(R"(audio         play a small tune
+ascii         print the ascii table
+cls           clear the screen
+font NAME     sets the font (fortuna | ibm)
+led VAL       turns on/off the user panel led (0|1)
+longtext      print a longer Lorem Ipsum text
+mem           print how much RAM is available
+sdcard        print the root directory of the SD card
+settime DATE  sets the time on the RTC (format: YY MM DD HH NN SS)
+switches      shows the current state of the user panel dipswitches
+table         print a fancy table
+time          prints the current RTC time
+)");
     } else if (strcmp(cmd, "audio") == 0) {
         audio::play_music(false);
     } else if (strcmp(cmd, "ascii") == 0) {
@@ -228,6 +240,8 @@ void execute_command(const char* cmd)
         user::set_led(false);
     } else if (strcmp(cmd, "led 1") == 0) {
         user::set_led(true);
+    } else if (strcmp(cmd, "mem") == 0) {
+        vga::text::printf("Memory available: %d kB.\n", free_ram() / 1024);
     } else if (strcmp(cmd, "noise") == 0) {
         audio::play_single_note(audio::Sound { audio::C3, 500 });
     } else if (strcmp(cmd, "switches") == 0) {
@@ -293,7 +307,8 @@ void create_music() {
 
 int main()
 {
-    fortuna::init(true);
+    fortuna::init();
+    // sleep_ms(3000);
 
     create_music();
 
@@ -317,8 +332,14 @@ next_command:
                         goto next_command;;
                     }
                     break;
-                case fortuna::Event::Type::UserButton:
-                    vga::text::print(" [USER BUTTON PRESSED] ");
+                case fortuna::Event::Type::UserPanel:
+                    vga::text::print(" [USER PANEL EVENT: ", false);
+                    switch (e.user.button) {
+                        case user::Event::PushButton: vga::text::print("push", false); break;
+                        case user::Event::Switch0: vga::text::print("switch0", false); break;
+                        case user::Event::Switch1: vga::text::print("switch1", false); break;
+                    }
+                    vga::text::printf(" %d ] ", e.user.new_value);
                     break;
                 case fortuna::Event::Type::External:
                     vga::text::print(" [ SPI ", false);

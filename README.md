@@ -27,7 +27,10 @@ The board and accompanying firmware library provides:
 ## Schematic
 
 ![Schematic](schematic/pi-pico-vga.svg)
-Any of these modules, except for the Pico Pi 2 and the Power, are optional.
+
+Possible variations:
+ * Any of these modules, except for the Pico Pi 2 and the Power, are optional.
+ * A Pico Pi (not W) can be used instead, if wireless is not needed.
 
 [Download PDF](schematic/fortuna-io-board.pdf)
 

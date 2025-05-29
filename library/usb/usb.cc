@@ -11,7 +11,6 @@ void init()
 {
     board_init();
     tusb_init();
-    // tuh_init(BOARD_TUH_RHPORT);
     board_led_write(true);
 
     printf("USB initialized.\n");
@@ -67,16 +66,13 @@ void tuh_hid_report_received_cb(uint8_t dev_addr, uint8_t instance, uint8_t cons
 {
     uint8_t const itf_protocol = tuh_hid_interface_protocol(dev_addr, instance);
 
-    switch (itf_protocol)
-    {
-    case HID_ITF_PROTOCOL_KEYBOARD:
-            usb::keyboard::process_report((hid_keyboard_report_t const*) report);
-            break;
-
+    switch (itf_protocol) {
+        case HID_ITF_PROTOCOL_KEYBOARD:
+                usb::keyboard::process_report((hid_keyboard_report_t const*) report);
+                break;
         default:
             break;
     }
 
-    if (!tuh_hid_receive_report(dev_addr, instance)) {
-    }
+    tuh_hid_receive_report(dev_addr, instance);
 }
