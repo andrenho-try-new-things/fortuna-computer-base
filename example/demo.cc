@@ -247,51 +247,55 @@ void execute_command(const char* cmd)
     }
 }
 
-static const audio::Sound music[] = {
-    { audio::Note::C4, 300 },
-    { audio::Note::D4, 300 },
-    { audio::Note::E4, 300 },
-    { audio::Note::F4, 300 },
-    { audio::Note::Pause, 100 },
-    { audio::Note::F4, 100 },
-    { audio::Note::Pause, 100 },
-    { audio::Note::F4, 200 },
-
-    { audio::Note::C4, 300 },
-    { audio::Note::D4, 300 },
-    { audio::Note::C4, 300 },
-    { audio::Note::D4, 300 },
-    { audio::Note::Pause, 100 },
-    { audio::Note::D4, 100 },
-    { audio::Note::Pause, 100 },
-    { audio::Note::D4, 300 },
-
-    { audio::Note::C4, 300 },
-    { audio::Note::G4, 300 },
-    { audio::Note::F4, 300 },
-    { audio::Note::E4, 300 },
-    { audio::Note::Pause, 100 },
-    { audio::Note::E4, 100 },
-    { audio::Note::Pause, 100 },
-    { audio::Note::E4, 200 },
-
-    { audio::Note::C4, 300 },
-    { audio::Note::D4, 300 },
-    { audio::Note::E4, 300 },
-    { audio::Note::F4, 300 },
-    { audio::Note::Pause, 100 },
-    { audio::Note::F4, 100 },
-    { audio::Note::Pause, 100 },
-    { audio::Note::F4, 200 },
-};
-
 // user code will run on CORE 0
+
+void create_music() {
+    audio::Sound music[] = {
+        { audio::Note::C4, 300 },
+        { audio::Note::D4, 300 },
+        { audio::Note::E4, 300 },
+        { audio::Note::F4, 300 },
+        { audio::Note::Pause, 100 },
+        { audio::Note::F4, 100 },
+        { audio::Note::Pause, 100 },
+        { audio::Note::F4, 200 },
+
+        { audio::Note::C4, 300 },
+        { audio::Note::D4, 300 },
+        { audio::Note::C4, 300 },
+        { audio::Note::D4, 300 },
+        { audio::Note::Pause, 100 },
+        { audio::Note::D4, 100 },
+        { audio::Note::Pause, 100 },
+        { audio::Note::D4, 300 },
+
+        { audio::Note::C4, 300 },
+        { audio::Note::G4, 300 },
+        { audio::Note::F4, 300 },
+        { audio::Note::E4, 300 },
+        { audio::Note::Pause, 100 },
+        { audio::Note::E4, 100 },
+        { audio::Note::Pause, 100 },
+        { audio::Note::E4, 200 },
+
+        { audio::Note::C4, 300 },
+        { audio::Note::D4, 300 },
+        { audio::Note::E4, 300 },
+        { audio::Note::F4, 300 },
+        { audio::Note::Pause, 100 },
+        { audio::Note::F4, 100 },
+        { audio::Note::Pause, 100 },
+        { audio::Note::F4, 200 },
+    };
+
+    audio::set_music(music, sizeof(music) / sizeof music[0]);
+}
 
 int main()
 {
     fortuna::init(true);
 
-    audio::set_music((audio::Sound*) music, sizeof(music) / sizeof music[0]);
+    create_music();
 
     vga::text::print("Current date/time is ", false); print_date(); vga::text::print(".\n", false);
     vga::text::print("Type 'help' for help.\n\n");

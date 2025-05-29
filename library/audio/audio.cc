@@ -55,6 +55,7 @@ static void play_sound(Sound const& sound)
         pwm_set_clkdiv(slice_no, divider);
         pwm_set_wrap(slice_no, top);
         pwm_set_chan_level(slice_no, channel, top / 2);
+        pwm_set_enabled(slice_no, true);
     }
 }
 
@@ -70,6 +71,7 @@ static int64_t play_next_note(alarm_id_t id = -1, void *user_data = nullptr)
             current_note = 0;
         } else {
             pwm_set_enabled(slice_no, false);
+            music_playing = false;
             return 0;
         }
     }
