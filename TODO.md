@@ -56,10 +56,10 @@
 - [x] Print total RAM usage
 - [x] User panel
   - [x] Detect changes to dipswitch
-- [ ] VGA improvements
-  - [ ] Text mode
+- [x] VGA improvements
+  - [x] Text mode
     - [x] Don't use text backend (less memory)
-    - [ ] 4 different fonts
+    - [x] 4 different fonts
 - [ ] Github actions - generate uf2
 
 ## Version 2.1
