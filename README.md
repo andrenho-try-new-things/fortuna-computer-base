@@ -27,6 +27,8 @@ The board and accompanying firmware library provides:
 ## Schematic
 
 ![Schematic](schematic/pi-pico-vga.svg)
+Any of these modules, except for the Pico Pi 2 and the Power, are optional.
+
 [Download PDF](schematic/fortuna-io-board.pdf)
 
 ## Using it in a project

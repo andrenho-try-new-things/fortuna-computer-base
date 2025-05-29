@@ -51,16 +51,31 @@
 
 ## Version 2.0
 
+- [ ] Configurable initialization
+- [ ] General code review
+- [ ] User panel
+  - [ ] Detect changes to dipswitch
+- [ ] VGA improvements
+  - [ ] Text mode
+    - [ ] All actions
+    - [ ] 4 different fonts
+    - [ ] Don't use text backend (less memory)
 - [ ] Github actions - generate uf2
+
+## Version 2.1
+
+- [ ] SDCard - link to RTC
 - [ ] VGA mode 2 at lower resolution (320x200)
-  - [ ] Tiles and sprites?
-  - [ ] Doublebuffer
+  - [ ] Drawing primitives
+  - [ ] Tiles and sprites
+  - [ ] Optional double buffer
 - [ ] USB
   - [ ] Mouse
   - [ ] Joystick
+
+## Version 2.2
+
 - [ ] Advanced audio
   - [ ] Multiple channels (?)
   - [ ] Samples using PIO (?)
   - [ ] Noise
-- [ ] More drawing primitives (?)
-- [ ] More fonts (?)
