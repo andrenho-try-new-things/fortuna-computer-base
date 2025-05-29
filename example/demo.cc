@@ -200,7 +200,7 @@ void execute_command(const char* cmd)
         vga::text::print(R"(audio         play a small tune
 ascii         print the ascii table
 cls           clear the screen
-font NAME     sets the font (fortuna | ibm)
+font NAME     sets the font (fortuna | ibm | vga | toshiba)
 led VAL       turns on/off the user panel led (0|1)
 longtext      print a longer Lorem Ipsum text
 mem           print how much RAM is available
@@ -220,13 +220,19 @@ time          prints the current RTC time
     } else if (strcmp(cmd, "longtext") == 0) {
         longtext();
     } else if (strcmp(cmd, "font") == 0) {
-        vga::text::print("font [fortuna | ibm]\n");
+        vga::text::print("font [fortuna | ibm | vga | toshiba]\n");
     } else if (strcmp(cmd, "font fortuna") == 0) {
         vga::text::set_font(vga::text::font::Fortuna);
         vga::text::print("Font 'fortuna' selected.\n");
     } else if (strcmp(cmd, "font ibm") == 0) {
         vga::text::set_font(vga::text::font::IBM);
         vga::text::print("Font 'ibm' selected.\n");
+    } else if (strcmp(cmd, "font vga") == 0) {
+        vga::text::set_font(vga::text::font::VGA);
+        vga::text::print("Font 'vga' selected.\n");
+    } else if (strcmp(cmd, "font toshiba") == 0) {
+        vga::text::set_font(vga::text::font::Toshiba);
+        vga::text::print("Font 'vga' selected.\n");
     } else if (strcmp(cmd, "font") == 0) {
         vga::text::print("font NUMBER\n");
     } else if (strcmp(cmd, "sdcard") == 0) {

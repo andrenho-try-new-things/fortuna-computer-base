@@ -8,13 +8,17 @@
 #include "font.hh"
 #include "fontgen/ibm_font.hh"
 #include "fontgen/fortuna_font.hh"
+#include "fontgen/vga_font.hh"
+#include "fontgen/toshiba_font.hh"
 
 static fortuna_font default_font;
-static ibm_font secondary_font;
+static ibm_font font_ibm;
+static vga_font font_vga;
+static toshiba_font font_toshiba;
 
 namespace vga::text {
 
-static Font*   font_data[] { &default_font, &secondary_font };
+static Font*   font_data[] { &default_font, &font_ibm, &font_vga, &font_toshiba };
 static uint8_t current_font = 0;
 
 static uint16_t cursor_x = 0;

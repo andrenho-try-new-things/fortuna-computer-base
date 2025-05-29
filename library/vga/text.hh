@@ -10,7 +10,7 @@
 
 namespace vga::text {
 
-enum class font: uint8_t { Fortuna, IBM };
+enum class font: uint8_t { Fortuna, IBM, VGA, Toshiba };
 
 void init();
 
