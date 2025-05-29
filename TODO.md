@@ -58,9 +58,8 @@
   - [x] Detect changes to dipswitch
 - [ ] VGA improvements
   - [ ] Text mode
-    - [ ] All actions
+    - [x] Don't use text backend (less memory)
     - [ ] 4 different fonts
-    - [ ] Don't use text backend (less memory)
 - [ ] Github actions - generate uf2
 
 ## Version 2.1

@@ -57,7 +57,6 @@ static void ascii_table() {
         }
         vga::text::print('\n', false);
     }
-    vga::text::redraw();
 }
 
 static void longtext()
@@ -123,8 +122,6 @@ static void table()
     for (uint8_t i = 0; i < 10; ++i) print(0xcd, false);
     print(0xbc, false);
     print("\n\n", false);
-
-    redraw();
 }
 
 static void sdcard()

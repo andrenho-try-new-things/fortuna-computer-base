@@ -13,9 +13,11 @@ namespace vga::fb {
 constexpr uint16_t screen_width() { return 640; }
 constexpr uint16_t screen_height() { return 480; }
 
-void clear();
+void clear(Color color);
+void clear_lines(uint16_t y1, uint16_t y2, Color color);
 void draw_pixel(uint16_t x, uint16_t y, Color color);
 void draw_from_byte(uint8_t byte, uint8_t n_bytes, uint16_t x, uint16_t y, Color bg_color, Color fg_color);
+void move_screen_up(uint16_t lines, Color fill_color);
 
 }
 

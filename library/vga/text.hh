@@ -22,8 +22,6 @@ void print(const char* text, bool redraw=true);
 void printf(const char* fmt, ...);
 void printf_noredraw(const char* fmt, ...);
 
-void redraw();
-
 std::pair<uint16_t, uint16_t> get_cursor();
 std::pair<Color, Color>       get_color();
 

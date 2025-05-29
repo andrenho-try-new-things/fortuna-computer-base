@@ -31,54 +31,100 @@ static uint16_t columns = 80;
 static uint16_t rows = 25;
 
 static constexpr uint8_t CURSOR_CHAR = 127;
+static constexpr uint8_t MISSING_CHAR = '?';
 static constexpr uint8_t V_BORDER = 10;
 
-struct __attribute__((packed)) TextCell {
-    uint8_t c = ' ';
-    Color   fg_color: 4 = Color::Black;
-    Color   bg_color: 4 = Color::White;
-    bool    dirty = false;
+static std::pair<uint16_t, uint16_t> cell_pos(uint16_t cell_x, uint16_t cell_y)
+{
+    Font* font = font_data[current_font];
+    if (!font)
+        return { 0, 0 };
 
-    bool operator!=(const TextCell& o) const {
-        return c != o.c || fg_color != o.fg_color || bg_color != o.bg_color;
-    }
-};
+    const int w_border = (fb::screen_width()) / 2 - (columns * font->char_width / 2);
 
-static TextCell* cells;
+    return { w_border + (cell_x * font->char_width), V_BORDER + (cell_y * font->char_height) };
+}
 
 static void line_feed()
 {
-    for (int i = 0; i < columns * rows; ++i) {
-        if (i < (columns * (rows - 1))) {
-            if (cells[i] != cells[i + columns]) {
-                cells[i] = cells[i + columns];
-                cells[i].dirty = true;
-            }
-        } else {
-            cells[i] = TextCell { ' ', fg_color, bg_color, true };
+    Font* font = font_data[current_font];
+    if (!font)
+        return;
+
+    fb::move_screen_up(font->char_height, bg_color);
+    fb::clear_lines(0, V_BORDER, bg_color);
+}
+
+static void draw_cursor()
+{
+    auto [px, py] = cell_pos(cursor_x, cursor_y);
+    Font* font = font_data[current_font];
+    const int font_idx = CURSOR_CHAR - font->first_char;
+
+    for (uint8_t y = 0; y < font->char_height; ++y)
+        fb::draw_from_byte(font->pixels(font_idx, y), font->char_width, px, py + y, bg_color, cursor_is_on ? Color::Lime : bg_color);
+}
+
+void init()
+{
+    set_font(font::Fortuna);
+
+    add_repeating_timer_ms(100, [](auto*) {
+        --cursor_counter;
+        if (cursor_counter == 0) {
+            cursor_is_on = !cursor_is_on;
+            cursor_counter = CURSOR_RESET;
+            draw_cursor();
+        }
+        return true;
+    }, nullptr, &timer);
+}
+
+void clear_screen()
+{
+    fb::clear(bg_color);
+}
+
+void set_font(font f)
+{
+    if ((uint8_t) f < sizeof(font_data) / sizeof(font_data[0])) {
+        clear_screen();
+        fb::clear(bg_color);
+        current_font = (uint8_t) f;
+        Font* font = font_data[(uint8_t) f];
+        if (font) {
+            columns = fb::screen_width() / font->char_width;
+            if (columns > 80)
+                columns = 80;
+            rows = (fb::screen_height() - 2 * V_BORDER) / font->char_height;
+            clear_screen();
+            set_cursor(0, 0);
         }
     }
 }
 
-static void add_char(uint8_t c)
+void print(uint8_t c, bool redraw)
 {
+    auto [px, py] = cell_pos(cursor_x, cursor_y);
+    Font* font = font_data[current_font];
+
     if (c == 10) {
-        add_char(' ');
-        while (cursor_x != 0)
-            add_char(' ');
+        cursor_is_on = false;
+        draw_cursor();
+        cursor_x = 0;
+        ++cursor_y;
     } else if (c == '\b') {
-        cells[cursor_x + (cursor_y * columns)].dirty = true;
         if (cursor_x > 0) {
             --cursor_x;
-            cells[cursor_x + (cursor_y * columns)] = TextCell { ' ', fg_color, bg_color, true };
+            for (uint8_t y = 0; y < font->char_height; ++y)
+                fb::draw_from_byte(font->pixels(' ' - font->first_char, y), font->char_width, px, py + y, bg_color, fg_color);
         }
     } else {
-        cells[cursor_x + (cursor_y * columns)] = TextCell {
-            .c = c,
-            .fg_color = fg_color,
-            .bg_color = bg_color,
-            .dirty = true,
-        };
+        int font_idx = c - font->first_char;
+        if (font_idx < 0 || c > font->last_char)
+            font_idx = MISSING_CHAR - font->first_char;
+        for (uint8_t y = 0; y < font->char_height; ++y)
+            fb::draw_from_byte(font->pixels(font_idx, y), font->char_width, px, py + y, bg_color, fg_color);
 
         ++cursor_x;
     }
@@ -95,97 +141,15 @@ static void add_char(uint8_t c)
 
     cursor_counter = CURSOR_RESET;
     cursor_is_on = true;
-}
-
-void redraw()
-{
-    Font* font = font_data[current_font];
-    if (!font)
-        return;
-
-    const int w_border = (fb::screen_width()) / 2 - (columns * font->char_width / 2);
-
-    for (int i = 0; i < columns * rows; ++i) {
-        const int cell_y = i / columns;
-        const int cell_x = i - (cell_y * columns);
-
-        if (cells[i].dirty) {
-            const int font_idx = cells[i].c - font->first_char;
-            if (font_idx < 0 || cells[i].c > font->last_char)
-                continue;
-            for (uint8_t y = 0; y < font->char_height; ++y)
-                fb::draw_from_byte(font->pixels(font_idx, y), font->char_width, cell_x * font->char_width + w_border, cell_y * font->char_height + y + V_BORDER, cells[i].bg_color, cells[i].fg_color);
-            cells[i].dirty = false;
-        }
-
-        if (cell_x == cursor_x && cell_y == cursor_y) {
-            for (uint8_t y = 0; y < font->char_height; ++y)
-                fb::draw_from_byte(cursor_is_on ? font->pixels(CURSOR_CHAR - font->first_char, y) : 0x0,
-                    font->char_width, cell_x * font->char_width + w_border, cell_y * font->char_height + y + V_BORDER, Color::Black, Color::Lime);
-        }
-    }
-}
-
-void init()
-{
-    set_font(font::Fortuna);
-
-    add_repeating_timer_ms(100, [](auto*) {
-        --cursor_counter;
-        if (cursor_counter == 0) {
-            cursor_is_on = !cursor_is_on;
-            cursor_counter = CURSOR_RESET;
-            redraw();
-        }
-        return true;
-    }, nullptr, &timer);
-}
-
-void clear_screen()
-{
-    cells[cursor_x + (cursor_y * columns)].c = ' ';
-    cells[cursor_x + (cursor_y * columns)].dirty = true;
-    for (size_t i = 0; i < rows * columns; ++i)
-        cells[i] = TextCell { ' ', fg_color, bg_color, true };
-    redraw();
-}
-
-void set_font(font f)
-{
-    if ((uint8_t) f < sizeof(font_data) / sizeof(font_data[0])) {
-        clear_screen();
-        fb::clear();
-        delete cells;
-        current_font = (uint8_t) f;
-        Font* font = font_data[(uint8_t) f];
-        if (font) {
-            columns = fb::screen_width() / font->char_width;
-            if (columns > 80)
-                columns = 80;
-            rows = (fb::screen_height() - 2 * V_BORDER) / font->char_height;
-            cells = new TextCell[columns * rows];
-            redraw();
-            clear_screen();
-            set_cursor(0, 0);
-        }
-    }
-}
-
-void print(uint8_t c, bool redraw)
-{
-    add_char(c);
-    if (redraw)
-        text::redraw();
+    draw_cursor();
 }
 
 void print(const char* text, bool redraw)
 {
     while (*text) {
-        add_char(*text);
+        print(*text);
         text++;
     }
-    if (redraw)
-        text::redraw();
 }
 
 void printf(const char* fmt, ...)
@@ -228,7 +192,6 @@ void set_color(Color bg_color_, Color fg_color_)
 
 void set_cursor(uint16_t x, uint16_t y)
 {
-    cells[cursor_x + (cursor_y * columns)].dirty = true;
     cursor_x = MIN(x, 639);
     cursor_y = MIN(y, 479);
 }
