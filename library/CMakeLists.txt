@@ -17,7 +17,7 @@ pico_sdk_init()
 # project
 #
 
-project(fortuna-io-board VERSION 1.0.0)
+project(fortuna-io-board VERSION 2.0)
 
 add_library(${PROJECT_NAME} INTERFACE)
 

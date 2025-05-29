@@ -12,7 +12,7 @@ static constexpr uint8_t DIP1_PIN = 28;
 static constexpr uint8_t PUSHBUTTON_PIN = 15;
 
 static constexpr uint16_t USER_BUTTON_DECOMPRESS = 200;
-static absolute_time_t last_button_press = 0;
+static absolute_time_t last_button_press[4] = { 0, 0, 0 };
 
 void init()
 {
@@ -42,9 +42,9 @@ void init_interupts()
             case DIP1_PIN: button = Event::Switch1; break;
         }
 
-        if (gpio == PUSHBUTTON_PIN && to_ms_since_boot(last_button_press) + USER_BUTTON_DECOMPRESS > to_ms_since_boot(get_absolute_time()))
+        if (to_ms_since_boot(last_button_press[button]) + USER_BUTTON_DECOMPRESS > to_ms_since_boot(get_absolute_time()))
             return;
-        last_button_press = get_absolute_time();
+        last_button_press[button] = get_absolute_time();
 
         fortuna::add_event(fortuna::Event {
             .type = fortuna::Event::Type::UserPanel,

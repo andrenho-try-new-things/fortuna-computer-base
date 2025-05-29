@@ -54,8 +54,8 @@
 - [x] Configurable initialization
 - [x] General code review
 - [x] Print total RAM usage
-- [ ] User panel
-  - [ ] Detect changes to dipswitch
+- [x] User panel
+  - [x] Detect changes to dipswitch
 - [ ] VGA improvements
   - [ ] Text mode
     - [ ] All actions
