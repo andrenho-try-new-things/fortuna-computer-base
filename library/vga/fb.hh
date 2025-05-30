@@ -1,7 +1,7 @@
 #ifndef FB_HH
 #define FB_HH
 
-#include <stdint.h>
+#include <cstdint>
 
 enum class Color : uint8_t {
     Black = 0, NavyBlue, DarkGreen, Blue, Green, SkyBlue, Lime, Cyan,

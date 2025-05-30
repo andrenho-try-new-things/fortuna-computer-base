@@ -1,7 +1,9 @@
 // original code by Hunter Adams (vha3@cornell.edu), modified by Andre Wagner
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+
 #include "pico/stdlib.h"
 #include "hardware/pio.h"
 #include "hardware/dma.h"
@@ -10,9 +12,9 @@
 
 #include "hsync.pio.h"
 #include "vsync.pio.h"
-#include "rgb.pio.h"
+#include "rgb640.pio.h"
+#include "rgb320.pio.h"
 
-#include <string.h>
 
 enum vga_pins {HSYNC=16, VSYNC, LO_GRN, HI_GRN, BLUE_PIN, RED_PIN} ;
 
@@ -34,49 +36,86 @@ enum vga_pins {HSYNC=16, VSYNC, LO_GRN, HI_GRN, BLUE_PIN, RED_PIN} ;
 
 namespace vga {
 
+// VGA framebuffer
 unsigned char vga_data_array[TXCOUNT];
-static char* address_pointer = (char*) &vga_data_array[0] ;
+static void* address_pointer = &vga_data_array[0] ;
+
+static bool first_setup = true;
+static int rgb_chan_0, rgb_chan_1;
+static uint rgb_offset;
+
+// state machines
+constexpr uint HSYNC_SM = 0;
+constexpr uint VSYNC_SM = 1;
+constexpr uint RGB_SM = 2;
+
+int current_scanline = 0;
+uint32_t current_frame = 0;
+
+static void dma_handler()
+{
+    // Clear the interrupt request for DMA control channel
+    dma_hw->ints0 = (1u << rgb_chan_0);
+
+    // increment scanline (1..)
+    current_scanline++;                  // new current scanline
+    if (current_scanline >= 480) {       // last scanline?
+        current_scanline = 0;            // restart scanline
+        current_frame++;                 // increment frame counter
+    }
+
+    address_pointer = &vga_data_array[320 * current_scanline];
+}
+
+
+static void disable_rgb()
+{
+    // pio_enable_sm_mask_in_sync(pio0, (1u << HSYNC_SM) | (1u << VSYNC_SM));
+    // dma_start_channel_mask(~(1u << rgb_chan_0));
+    // dma_unclaim_mask((1 << rgb_chan_0) | (1 << rgb_chan_1));
+    // pio_remove_program_and_unclaim_sm(&rgb_program, pio0, RGB_SM, rgb_offset);
+}
+
+void set_mode(Mode mode)
+{
+    if (!first_setup) {
+        disable_rgb();
+        first_setup = false;
+    }
+
+    /*
+    pio_remove_program(pio0, &rgb320_program, rgb_offset);
+    rgb_offset = pio_add_program(pio0, &rgb320_program);
+    pio_sm_drain_tx_fifo(pio0, RGB_SM);
+    pio_sm_put_blocking(pio0, RGB_SM, RGB_ACTIVE);
+    // rgb640_program_init(pio0, RGB_SM, rgb_offset, LO_GRN);
+    */
+}
 
 void init()
 {
-    // Choose which PIO instance to use (there are two instances, each with 4 state machines)
-    PIO pio = pio0;
-
-    // Our assembled program needs to be loaded into this PIO's instruction
-    // memory. This SDK function will find a location (offset) in the
-    // instruction memory where there is enough space for our program. We need
-    // to remember these locations!
-    //
-    // We only have 32 instructions to spend! If the PIO programs contain more than
-    // 32 instructions, then an error message will get thrown at these lines of code.
-    //
-    // The program name comes from the .program part of the pio file
-    // and is of the form <program name_program>
-    uint hsync_offset = pio_add_program(pio, &hsync_program);
-    uint vsync_offset = pio_add_program(pio, &vsync_program);
-    uint rgb_offset = pio_add_program(pio, &rgb_program);
+    // load programs
+    uint hsync_offset = pio_add_program(pio0, &hsync_program);
+    uint vsync_offset = pio_add_program(pio0, &vsync_program);
+    rgb_offset = pio_add_program(pio0, &rgb640_program);
 
     // Manually select a few state machines from pio instance pio0.
-    uint hsync_sm = 0;
-    uint vsync_sm = 1;
-    uint rgb_sm = 2;
+    // initialize programs (C function in pio files)
+    hsync_program_init(pio0, HSYNC_SM, hsync_offset, HSYNC);
+    vsync_program_init(pio0, VSYNC_SM, vsync_offset, VSYNC);
+    rgb640_program_init(pio0, RGB_SM, rgb_offset, LO_GRN);
 
-    // Call the initialization functions that are defined within each PIO file.
-    // Why not create these programs here? By putting the initialization function in
-    // the pio file, then all information about how to use/setup that state machine
-    // is consolidated in one place. Here in the C, we then just import and use it.
-    hsync_program_init(pio, hsync_sm, hsync_offset, HSYNC);
-    vsync_program_init(pio, vsync_sm, vsync_offset, VSYNC);
-    rgb_program_init(pio, rgb_sm, rgb_offset, LO_GRN);
+    // Initialize PIO state machine counters.
+    pio_sm_put_blocking(pio0, HSYNC_SM, H_ACTIVE);
+    pio_sm_put_blocking(pio0, VSYNC_SM, V_ACTIVE);
+    pio_sm_put_blocking(pio0, RGB_SM, RGB_ACTIVE);
 
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-    // ============================== PIO DMA Channels =================================================
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Start the two pio machine IN SYNC
+    set_mode(Mode::V_640x480);
 
     // DMA channels - 0 sends color data, 1 reconfigures and restarts 0
-    int rgb_chan_0 = dma_claim_unused_channel(true);
-    int rgb_chan_1 = dma_claim_unused_channel(true);
+    rgb_chan_0 = dma_claim_unused_channel(true);
+    rgb_chan_1 = dma_claim_unused_channel(true);
 
     // Channel Zero (sends color data to PIO VGA machine)
     dma_channel_config c0 = dma_channel_get_default_config(rgb_chan_0);  // default configs
@@ -89,9 +128,9 @@ void init()
     dma_channel_configure(
         rgb_chan_0,                 // Channel to be configured
         &c0,                        // The configuration we just created
-        &pio->txf[rgb_sm],          // write address (RGB PIO TX FIFO)
+        &pio0->txf[RGB_SM],          // write address (RGB PIO TX FIFO)
         &vga_data_array,            // The initial read address (pixel color array)
-        TXCOUNT,                    // Number of transfers; in this case each is 1 byte.
+        320,                        // Number of transfers; in this case each is 1 byte.
         false                       // Don't start immediately.
     );
 
@@ -111,28 +150,16 @@ void init()
         false                               // Don't start immediately.
     );
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
+    // enable DMA
+    dma_channel_set_irq0_enabled(rgb_chan_0, true);
+    irq_set_exclusive_handler(DMA_IRQ_0, dma_handler);
+    irq_set_enabled(DMA_IRQ_0, true);
+    irq_set_priority(DMA_IRQ_0, 0);
 
-    // Initialize PIO state machine counters. This passes the information to the state machines
-    // that they retrieve in the first 'pull' instructions, before the .wrap_target directive
-    // in the assembly. Each uses these values to initialize some counting registers.
-    pio_sm_put_blocking(pio, hsync_sm, H_ACTIVE);
-    pio_sm_put_blocking(pio, vsync_sm, V_ACTIVE);
-    pio_sm_put_blocking(pio, rgb_sm, RGB_ACTIVE);
-
-
-    // Start the two pio machine IN SYNC
-    // Note that the RGB state machine is running at full speed,
-    // so synchronization doesn't matter for that one. But, we'll
-    // start them all simultaneously anyway.
-    pio_enable_sm_mask_in_sync(pio, ((1u << hsync_sm) | (1u << vsync_sm) | (1u << rgb_sm)));
-
-    // Start DMA channel 0. Once started, the contents of the pixel color array
-    // will be continously DMA's to the PIO machines that are driving the screen.
-    // To change the contents of the screen, we need only change the contents
-    // of that array.
+    // start DMA channel
     dma_start_channel_mask((1u << rgb_chan_0)) ;
+
+    pio_enable_sm_mask_in_sync(pio0, ((1u << HSYNC_SM) | (1u << VSYNC_SM) | (1u << RGB_SM)));
 
     text::init();
 

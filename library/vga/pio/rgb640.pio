@@ -4,7 +4,7 @@
 ; mod by Bruce Land for 16 colors
 
 ; Program name
-.program rgb
+.program rgb640
 
 pull block 					; Pull from FIFO to OSR (only once)
 mov y, osr 					; Copy value from OSR to y scratch register
@@ -25,13 +25,13 @@ colorout:
 
 
 % c-sdk {
-static inline void rgb_program_init(PIO pio, uint sm, uint offset, uint pin) {
+static inline void rgb640_program_init(PIO pio, uint sm, uint offset, uint pin) {
 
     // creates state machine configuration object c, sets
     // to default configurations. I believe this function is auto-generated
     // and gets a name of <program name>_program_get_default_config
     // Yes, page 40 of SDK guide
-    pio_sm_config c = rgb_program_get_default_config(offset);
+    pio_sm_config c = rgb640_program_get_default_config(offset);
 
     // Map the state machine's SET and OUT pin group to three pins, the `pin`
     // parameter to this function is the lowest one. These groups overlap.

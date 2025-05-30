@@ -313,6 +313,8 @@ int main()
     fortuna::init();
     // sleep_ms(3000);
 
+    vga::set_mode(vga::Mode::V_640x480);
+
     create_music();
 
     vga::text::print("Current date/time is ", false); print_date(); vga::text::print(".\n", false);
