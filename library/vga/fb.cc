@@ -32,7 +32,7 @@ void draw_pixel(uint16_t x, uint16_t y, Color color)
     if((x > 639) | (x < 0) | (y > 479) | (y < 0) ) return;
 
     // Which pixel is it?
-    const int pixel = ((640 * y) + x) ;
+    const int pixel = ((320 * y) + x) ;
 
     // Is this pixel stored in the first 4 bits
     // of the vga data array index, or the second
