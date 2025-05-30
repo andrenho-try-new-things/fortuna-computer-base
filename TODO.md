@@ -60,7 +60,6 @@
   - [x] Text mode
     - [x] Don't use text backend (less memory)
     - [x] 4 different fonts
-- [ ] Github actions - generate uf2
 
 ## Version 2.1
 
@@ -78,3 +77,4 @@
   - [ ] Multiple channels (?)
   - [ ] Samples using PIO (?)
   - [ ] Noise
+- [ ] Github actions - generate uf2
