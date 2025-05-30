@@ -19,7 +19,7 @@ enum vga_pins {HSYNC=16, VSYNC, LO_GRN, HI_GRN, BLUE_PIN, RED_PIN} ;
 // VGA timing constants
 #define H_ACTIVE   655    // (active + frontporch - 1) - one cycle delay for mov
 #define V_ACTIVE   479    // (active - 1)
-#define RGB_ACTIVE 319    // (horizontal active)/2 - 1
+#define RGB_ACTIVE 159    // (horizontal active)/2 - 1
 // #define RGB_ACTIVE 639 // change to this if 1 pixel/byte
 
 // Length of the pixel array, and number of DMA transfers
@@ -35,7 +35,27 @@ enum vga_pins {HSYNC=16, VSYNC, LO_GRN, HI_GRN, BLUE_PIN, RED_PIN} ;
 namespace vga {
 
 unsigned char vga_data_array[TXCOUNT];
-static char* address_pointer = (char*) &vga_data_array[0] ;
+static void* address_pointer = (void*) &vga_data_array[0] ;
+
+int rgb_chan_0;
+int currentScanLine = 0;
+uint32_t currentFrame = 0;
+
+static void dma_handler()
+{
+    // Clear the interrupt request for DMA control channel
+    dma_hw->ints0 = (1u << rgb_chan_0);
+
+    // increment scanline (1..)
+    currentScanLine++;                  // new current scanline
+    if (currentScanLine >= 480) {       // last scanline?
+        currentScanLine = 0;            // restart scanline
+        currentFrame++;                 // increment frame counter
+    }
+
+    address_pointer = &vga_data_array[160 * (currentScanLine / 2)];
+    // vga_data_array = &vga_data_array[DMATXCOUNT * ((currentScanLine + 0) >> 2)];
+}
 
 void init()
 {
@@ -69,13 +89,27 @@ void init()
     vsync_program_init(pio, vsync_sm, vsync_offset, VSYNC);
     rgb_program_init(pio, rgb_sm, rgb_offset, LO_GRN);
 
+    // Initialize PIO state machine counters. This passes the information to the state machines
+    // that they retrieve in the first 'pull' instructions, before the .wrap_target directive
+    // in the assembly. Each uses these values to initialize some counting registers.
+    pio_sm_put_blocking(pio, hsync_sm, H_ACTIVE);
+    pio_sm_put_blocking(pio, vsync_sm, V_ACTIVE);
+    pio_sm_put_blocking(pio, rgb_sm, RGB_ACTIVE);
+
+
+    // Start the two pio machine IN SYNC
+    // Note that the RGB state machine is running at full speed,
+    // so synchronization doesn't matter for that one. But, we'll
+    // start them all simultaneously anyway.
+    pio_enable_sm_mask_in_sync(pio, ((1u << hsync_sm) | (1u << vsync_sm) | (1u << rgb_sm)));
+
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     // ============================== PIO DMA Channels =================================================
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // DMA channels - 0 sends color data, 1 reconfigures and restarts 0
-    int rgb_chan_0 = dma_claim_unused_channel(true);
+    rgb_chan_0 = dma_claim_unused_channel(true);
     int rgb_chan_1 = dma_claim_unused_channel(true);
 
     // Channel Zero (sends color data to PIO VGA machine)
@@ -91,7 +125,7 @@ void init()
         &c0,                        // The configuration we just created
         &pio->txf[rgb_sm],          // write address (RGB PIO TX FIFO)
         &vga_data_array,            // The initial read address (pixel color array)
-        TXCOUNT,                    // Number of transfers; in this case each is 1 byte.
+        160,                    // Number of transfers; in this case each is 1 byte.
         false                       // Don't start immediately.
     );
 
@@ -111,22 +145,14 @@ void init()
         false                               // Don't start immediately.
     );
 
+    // enable DMA
+    dma_channel_set_irq0_enabled(rgb_chan_0, true);
+    irq_set_exclusive_handler(DMA_IRQ_0, dma_handler);
+    irq_set_enabled(DMA_IRQ_0, true);
+    irq_set_priority(DMA_IRQ_0, 0);
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    // Initialize PIO state machine counters. This passes the information to the state machines
-    // that they retrieve in the first 'pull' instructions, before the .wrap_target directive
-    // in the assembly. Each uses these values to initialize some counting registers.
-    pio_sm_put_blocking(pio, hsync_sm, H_ACTIVE);
-    pio_sm_put_blocking(pio, vsync_sm, V_ACTIVE);
-    pio_sm_put_blocking(pio, rgb_sm, RGB_ACTIVE);
-
-
-    // Start the two pio machine IN SYNC
-    // Note that the RGB state machine is running at full speed,
-    // so synchronization doesn't matter for that one. But, we'll
-    // start them all simultaneously anyway.
-    pio_enable_sm_mask_in_sync(pio, ((1u << hsync_sm) | (1u << vsync_sm) | (1u << rgb_sm)));
 
     // Start DMA channel 0. Once started, the contents of the pixel color array
     // will be continously DMA's to the PIO machines that are driving the screen.
