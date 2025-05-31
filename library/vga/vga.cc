@@ -56,6 +56,8 @@ Mode current_mode = Mode::V_640x480;
 uint16_t screen_width = 640;
 uint16_t screen_height = 480;
 
+static volatile bool new_resolution = false;
+
 dma_channel_config c0;
 
 static void dma_handler()
@@ -68,6 +70,11 @@ static void dma_handler()
     if (current_scanline >= 480) {       // last scanline?
         current_scanline = 0;            // restart scanline
         current_frame++;                 // increment frame counter
+
+        if (new_resolution) {
+            // pio_sm_exec(pio0, RGB_SM, pio_encode_jmp(0));
+            new_resolution = false;
+        }
     }
 
     if (current_mode == Mode::V_640x480)
@@ -106,7 +113,8 @@ void set_mode(Mode mode)
     dma_channel_set_irq0_enabled(rgb_chan_0, false);
     current_scanline = 0;
 
-    pio_enable_sm_mask_in_sync(pio0, 0);
+    // pio_enable_sm_mask_in_sync(pio0, 0);
+    pio_sm_set_enabled(pio0, RGB_SM, false);
 
     pio_sm_clear_fifos(pio0, RGB_SM);
     pio_sm_put_blocking(pio0, RGB_SM, (screen_width / 2) - 1);
@@ -125,6 +133,8 @@ void set_mode(Mode mode)
         screen_width / 2,           // Number of transfers; in this case each is 1 byte.
         false                       // Don't start immediately.
     );
+
+    new_resolution = true;
 }
 
 void init_640()
