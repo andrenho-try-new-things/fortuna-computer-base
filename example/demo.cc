@@ -243,6 +243,14 @@ time          prints the current RTC time
         user::set_led(false);
     } else if (strcmp(cmd, "led 1") == 0) {
         user::set_led(true);
+    } else if (strcmp(cmd, "mode 1") == 0) {
+        vga::text::clear_screen();
+        vga::set_mode(vga::Mode::V_640x480);
+        vga::text::print("Mode 1 selected.\n");
+    } else if (strcmp(cmd, "mode 2") == 0) {
+        vga::text::clear_screen();
+        vga::set_mode(vga::Mode::V_320x240);
+        vga::text::print("Mode 2 selected.\n");
     } else if (strcmp(cmd, "mem") == 0) {
         vga::text::printf("Memory available: %d kB.\n", free_ram() / 1024);
     } else if (strcmp(cmd, "noise") == 0) {

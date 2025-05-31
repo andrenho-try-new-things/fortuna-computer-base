@@ -42,7 +42,7 @@ static void* address_pointer = &vga_data_array[0] ;
 
 static bool first_setup = true;
 static int rgb_chan_0, rgb_chan_1;
-static uint rgb_offset;
+static uint rgb_offset, vsync_offset, hsync_offset;
 
 // state machines
 constexpr uint HSYNC_SM = 0;
@@ -87,41 +87,35 @@ static void disable_rgb()
 
 void set_mode(Mode mode)
 {
-    /*
-    if (!first_setup) {
-        disable_rgb();
-        first_setup = false;
-    }
-    */
-
-    /*
-    pio_remove_program(pio0, &rgb320_program, rgb_offset);
-    rgb_offset = pio_add_program(pio0, &rgb320_program);
-    pio_sm_drain_tx_fifo(pio0, RGB_SM);
-    pio_sm_put_blocking(pio0, RGB_SM, RGB_ACTIVE);
-    // rgb640_program_init(pio0, RGB_SM, rgb_offset, LO_GRN);
-    */
-
     switch (mode) {
         case Mode::V_640x480:
             screen_width = 640;
             screen_height = 480;
-            // pio_remove_program(pio0, &rgb320_program, rgb_offset);
-            // rgb_offset = pio_add_program(pio0, &rgb640_program);
+            pio_remove_program(pio0, &rgb320_program, rgb_offset);
+            rgb_offset = pio_add_program(pio0, &rgb640_program);
             break;
         case Mode::V_320x240:
             screen_width = 320;
             screen_height = 240;
-            // pio_remove_program(pio0, &rgb640_program, rgb_offset);
-            // rgb_offset = pio_add_program(pio0, &rgb320_program);
+            pio_remove_program(pio0, &rgb640_program, rgb_offset);
+            rgb_offset = pio_add_program(pio0, &rgb320_program);
             break;
     }
     current_mode = mode;
 
+    dma_channel_set_irq0_enabled(rgb_chan_0, false);
     current_scanline = 0;
-    /*
+
+    pio_enable_sm_mask_in_sync(pio0, 0);
+
     pio_sm_clear_fifos(pio0, RGB_SM);
     pio_sm_put_blocking(pio0, RGB_SM, (screen_width / 2) - 1);
+
+    pio_sm_exec(pio0, RGB_SM, pio_encode_jmp(0));
+
+    pio_enable_sm_mask_in_sync(pio0, ((1u << HSYNC_SM) | (1u << VSYNC_SM) | (1u << RGB_SM)));
+
+    dma_channel_set_irq0_enabled(rgb_chan_0, true);
 
     dma_channel_configure(
         rgb_chan_0,                 // Channel to be configured
@@ -131,16 +125,17 @@ void set_mode(Mode mode)
         screen_width / 2,           // Number of transfers; in this case each is 1 byte.
         false                       // Don't start immediately.
     );
-    */
 }
 
 void init_640()
 {
-    set_mode(Mode::V_640x480);
+    screen_width = 640;
+    screen_height = 480;
+    current_mode = Mode::V_640x480;
 
     // load programs
-    uint hsync_offset = pio_add_program(pio0, &hsync_program);
-    uint vsync_offset = pio_add_program(pio0, &vsync_program);
+    hsync_offset = pio_add_program(pio0, &hsync_program);
+    vsync_offset = pio_add_program(pio0, &vsync_program);
     rgb_offset = pio_add_program(pio0, &rgb640_program);
 
     // Manually select a few state machines from pio instance pio0.
@@ -211,18 +206,20 @@ void init_640()
 
 void init_320()
 {
-    set_mode(Mode::V_320x240);
+    screen_width = 320;
+    screen_height = 240;
+    current_mode = Mode::V_320x240;
 
     // load programs
     uint hsync_offset = pio_add_program(pio0, &hsync_program);
     uint vsync_offset = pio_add_program(pio0, &vsync_program);
-    rgb_offset = pio_add_program(pio0, &rgb320_program);        // TODO
+    rgb_offset = pio_add_program(pio0, &rgb320_program);
 
     // Manually select a few state machines from pio instance pio0.
     // initialize programs (C function in pio files)
     hsync_program_init(pio0, HSYNC_SM, hsync_offset, HSYNC);
     vsync_program_init(pio0, VSYNC_SM, vsync_offset, VSYNC);
-    rgb320_program_init(pio0, RGB_SM, rgb_offset, LO_GRN);      // TODO
+    rgb320_program_init(pio0, RGB_SM, rgb_offset, LO_GRN);
 
     // Initialize PIO state machine counters.
     pio_sm_put_blocking(pio0, HSYNC_SM, H_ACTIVE);
