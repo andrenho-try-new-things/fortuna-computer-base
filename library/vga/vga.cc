@@ -57,6 +57,7 @@ uint16_t screen_width = 640;
 uint16_t screen_height = 480;
 
 dma_channel_config c0;
+pio_program const* rgb_program;
 
 static void dma_handler()
 {
@@ -77,88 +78,15 @@ static void dma_handler()
 }
 
 
-static void disable_rgb()
+void initialize_rgb(pio_program const* program, void (*init)(PIO pio, uint sm, uint offset, uint pin))
 {
-    // pio_enable_sm_mask_in_sync(pio0, (1u << HSYNC_SM) | (1u << VSYNC_SM));
-    // dma_start_channel_mask(~(1u << rgb_chan_0));
-    // dma_unclaim_mask((1 << rgb_chan_0) | (1 << rgb_chan_1));
-    // pio_remove_program_and_unclaim_sm(&rgb_program, pio0, RGB_SM, rgb_offset);
-}
-
-void set_mode(Mode mode)
-{
-    switch (mode) {
-        case Mode::V_640x480:
-            screen_width = 640;
-            screen_height = 480;
-            pio_remove_program(pio0, &rgb320_program, rgb_offset);
-            rgb_offset = pio_add_program(pio0, &rgb640_program);
-            break;
-        case Mode::V_320x240:
-            screen_width = 320;
-            screen_height = 240;
-            pio_remove_program(pio0, &rgb640_program, rgb_offset);
-            rgb_offset = pio_add_program(pio0, &rgb320_program);
-            break;
-    }
-    current_mode = mode;
-
-    dma_channel_set_irq0_enabled(rgb_chan_0, false);
-    current_scanline = 0;
-
-    pio_enable_sm_mask_in_sync(pio0, 0);
-
+    rgb_program = program;
+    rgb_offset = pio_add_program(pio0, program);
+    printf("program origin = %d\n", program->origin);
+    printf("rgb_offset = %d\n", rgb_offset);
+    init(pio0, RGB_SM, rgb_offset, LO_GRN);
     pio_sm_clear_fifos(pio0, RGB_SM);
     pio_sm_put_blocking(pio0, RGB_SM, (screen_width / 2) - 1);
-
-    pio_sm_exec(pio0, RGB_SM, pio_encode_jmp(0));
-
-    pio_enable_sm_mask_in_sync(pio0, ((1u << HSYNC_SM) | (1u << VSYNC_SM) | (1u << RGB_SM)));
-
-    dma_channel_set_irq0_enabled(rgb_chan_0, true);
-
-    dma_channel_configure(
-        rgb_chan_0,                 // Channel to be configured
-        &c0,                        // The configuration we just created
-        &pio0->txf[RGB_SM],         // write address (RGB PIO TX FIFO)
-        &vga_data_array,            // The initial read address (pixel color array)
-        screen_width / 2,           // Number of transfers; in this case each is 1 byte.
-        false                       // Don't start immediately.
-    );
-}
-
-void init_640()
-{
-    screen_width = 640;
-    screen_height = 480;
-    current_mode = Mode::V_640x480;
-
-    // load programs
-    hsync_offset = pio_add_program(pio0, &hsync_program);
-    vsync_offset = pio_add_program(pio0, &vsync_program);
-    rgb_offset = pio_add_program(pio0, &rgb640_program);
-    printf("hsync_offset = %d\n", hsync_offset);
-    printf("vsync_offset = %d\n", vsync_offset);
-    printf("rgb_offset = %d\n", rgb_offset);
-
-    // Manually select a few state machines from pio instance pio0.
-    // initialize programs (C function in pio files)
-    hsync_program_init(pio0, HSYNC_SM, hsync_offset, HSYNC);
-    vsync_program_init(pio0, VSYNC_SM, vsync_offset, VSYNC);
-    rgb640_program_init(pio0, RGB_SM, rgb_offset, LO_GRN);
-
-    // Initialize PIO state machine counters.
-    pio_sm_put_blocking(pio0, HSYNC_SM, H_ACTIVE);
-    pio_sm_put_blocking(pio0, VSYNC_SM, V_ACTIVE);
-    pio_sm_put_blocking(pio0, RGB_SM, (screen_width / 2) - 1);
-
-    // Start the two pio machine IN SYNC
-
-    // DMA channels - 0 sends color data, 1 reconfigures and restarts 0
-    rgb_chan_0 = dma_claim_unused_channel(true);
-    printf("rgb_chan_0 = %d\n", rgb_chan_0);
-    rgb_chan_1 = dma_claim_unused_channel(true);
-    printf("rgb_chan_1 = %d\n", rgb_chan_1);
 
     // Channel Zero (sends color data to PIO VGA machine)
     c0 = dma_channel_get_default_config(rgb_chan_0);  // default configs
@@ -201,6 +129,105 @@ void init_640()
 
     // start DMA channel
     dma_start_channel_mask((1u << rgb_chan_0)) ;
+}
+
+void set_mode(Mode mode)
+{
+    current_mode = mode;
+    switch (mode) {
+        case Mode::V_640x480:
+            screen_width = 640;
+            screen_height = 480;
+            break;
+        case Mode::V_320x240:
+            screen_width = 320;
+            screen_height = 240;
+            break;
+    }
+
+    printf("Disabling...\n");
+    pio_enable_sm_mask_in_sync(pio0, 0);  // TODO
+
+    printf("1\n");
+    pio_sm_set_enabled(pio0, HSYNC_SM, false);
+    printf("2\n");
+    pio_sm_set_enabled(pio0, VSYNC_SM, false);
+    printf("3\n");
+    // pio_remove_program(pio0, &vsync_program, vsync_offset);
+    printf("4\n");
+    // pio_remove_program(pio0, &hsync_program, hsync_offset);
+    printf("5\n");
+
+    dma_start_channel_mask(0);  // TODO
+    dma_channel_abort(rgb_chan_0);
+    dma_channel_abort(rgb_chan_1);
+    dma_channel_set_irq0_enabled(rgb_chan_0, false);
+    irq_set_enabled(DMA_IRQ_0, false);
+    pio_sm_set_enabled(pio0, RGB_SM, false);
+    pio_remove_program(pio0, rgb_program, rgb_offset);
+
+    sleep_ms(100);
+    printf("Disabled.\n");
+
+    switch (mode) {
+        case Mode::V_640x480:
+            initialize_rgb(&rgb640_program, rgb640_program_init);
+            break;
+        case Mode::V_320x240:
+            initialize_rgb(&rgb320_program, rgb320_program_init);
+            break;
+    }
+
+    // load programs
+    hsync_offset = pio_add_program(pio0, &hsync_program);
+    vsync_offset = pio_add_program(pio0, &vsync_program);
+    printf("hsync_offset = %d\n", hsync_offset);
+    printf("vsync_offset = %d\n", vsync_offset);
+
+    // Manually select a few state machines from pio instance pio0.
+    // initialize programs (C function in pio files)
+    hsync_program_init(pio0, HSYNC_SM, hsync_offset, HSYNC);
+    vsync_program_init(pio0, VSYNC_SM, vsync_offset, VSYNC);
+
+    // Initialize PIO state machine counters.
+    pio_sm_clear_fifos(pio0, HSYNC_SM);
+    pio_sm_put_blocking(pio0, HSYNC_SM, H_ACTIVE);
+    pio_sm_clear_fifos(pio0, VSYNC_SM);
+    pio_sm_put_blocking(pio0, VSYNC_SM, V_ACTIVE);
+
+    pio_enable_sm_mask_in_sync(pio0, ((1u << HSYNC_SM) | (1u << VSYNC_SM) | (1u << RGB_SM)));
+}
+
+void init_640()
+{
+    screen_width = 640;
+    screen_height = 480;
+    current_mode = Mode::V_640x480;
+
+    // load programs
+    hsync_offset = pio_add_program(pio0, &hsync_program);
+    vsync_offset = pio_add_program(pio0, &vsync_program);
+    printf("hsync_offset = %d\n", hsync_offset);
+    printf("vsync_offset = %d\n", vsync_offset);
+
+    // Manually select a few state machines from pio instance pio0.
+    // initialize programs (C function in pio files)
+    hsync_program_init(pio0, HSYNC_SM, hsync_offset, HSYNC);
+    vsync_program_init(pio0, VSYNC_SM, vsync_offset, VSYNC);
+
+    // Initialize PIO state machine counters.
+    pio_sm_put_blocking(pio0, HSYNC_SM, H_ACTIVE);
+    pio_sm_put_blocking(pio0, VSYNC_SM, V_ACTIVE);
+
+    // Start the two pio machine IN SYNC
+
+    // DMA channels - 0 sends color data, 1 reconfigures and restarts 0
+    rgb_chan_0 = dma_claim_unused_channel(true);
+    printf("rgb_chan_0 = %d\n", rgb_chan_0);
+    rgb_chan_1 = dma_claim_unused_channel(true);
+    printf("rgb_chan_1 = %d\n", rgb_chan_1);
+
+    initialize_rgb(&rgb640_program, rgb640_program_init);
 
     pio_enable_sm_mask_in_sync(pio0, ((1u << HSYNC_SM) | (1u << VSYNC_SM) | (1u << RGB_SM)));
 
@@ -218,21 +245,17 @@ void init_320()
     // load programs
     uint hsync_offset = pio_add_program(pio0, &hsync_program);
     uint vsync_offset = pio_add_program(pio0, &vsync_program);
-    rgb_offset = pio_add_program(pio0, &rgb320_program);
     printf("hsync_offset = %d\n", hsync_offset);
     printf("vsync_offset = %d\n", vsync_offset);
-    printf("rgb_offset = %d\n", rgb_offset);
 
     // Manually select a few state machines from pio instance pio0.
     // initialize programs (C function in pio files)
     hsync_program_init(pio0, HSYNC_SM, hsync_offset, HSYNC);
     vsync_program_init(pio0, VSYNC_SM, vsync_offset, VSYNC);
-    rgb320_program_init(pio0, RGB_SM, rgb_offset, LO_GRN);
 
     // Initialize PIO state machine counters.
     pio_sm_put_blocking(pio0, HSYNC_SM, H_ACTIVE);
     pio_sm_put_blocking(pio0, VSYNC_SM, V_ACTIVE);
-    pio_sm_put_blocking(pio0, RGB_SM, (screen_width / 2) - 1);
 
     // DMA channels - 0 sends color data, 1 reconfigures and restarts 0
     rgb_chan_0 = dma_claim_unused_channel(true);
@@ -240,47 +263,7 @@ void init_320()
     rgb_chan_1 = dma_claim_unused_channel(true);
     printf("rgb_chan_1 = %d\n", rgb_chan_1);
 
-    // Channel Zero (sends color data to PIO VGA machine)
-    c0 = dma_channel_get_default_config(rgb_chan_0);  // default configs
-    channel_config_set_transfer_data_size(&c0, DMA_SIZE_8);              // 8-bit txfers
-    channel_config_set_read_increment(&c0, true);                        // yes read incrementing
-    channel_config_set_write_increment(&c0, false);                      // no write incrementing
-    channel_config_set_dreq(&c0, DREQ_PIO0_TX2) ;                        // DREQ_PIO0_TX2 pacing (FIFO)
-    channel_config_set_chain_to(&c0, rgb_chan_1);                        // chain to other channel
-
-    dma_channel_configure(
-        rgb_chan_0,                 // Channel to be configured
-        &c0,                        // The configuration we just created
-        &pio0->txf[RGB_SM],         // write address (RGB PIO TX FIFO)
-        &vga_data_array,            // The initial read address (pixel color array)
-        screen_width / 2,           // Number of transfers; in this case each is 1 byte.
-        false                       // Don't start immediately.
-    );
-
-    // Channel One (reconfigures the first channel)
-    dma_channel_config c1 = dma_channel_get_default_config(rgb_chan_1);   // default configs
-    channel_config_set_transfer_data_size(&c1, DMA_SIZE_32);              // 32-bit txfers
-    channel_config_set_read_increment(&c1, false);                        // no read incrementing
-    channel_config_set_write_increment(&c1, false);                       // no write incrementing
-    channel_config_set_chain_to(&c1, rgb_chan_0);                         // chain to other channel
-
-    dma_channel_configure(
-        rgb_chan_1,                         // Channel to be configured
-        &c1,                                // The configuration we just created
-        &dma_hw->ch[rgb_chan_0].read_addr,  // Write address (channel 0 read address)
-        &address_pointer,                   // Read address (POINTER TO AN ADDRESS)
-        1,                                  // Number of transfers, in this case each is 4 byte
-        false                               // Don't start immediately.
-    );
-
-    // enable DMA
-    dma_channel_set_irq0_enabled(rgb_chan_0, true);
-    irq_set_exclusive_handler(DMA_IRQ_0, dma_handler);
-    irq_set_enabled(DMA_IRQ_0, true);
-    irq_set_priority(DMA_IRQ_0, 0);
-
-    // start DMA channel
-    dma_start_channel_mask((1u << rgb_chan_0)) ;
+    initialize_rgb(&rgb320_program, rgb320_program_init);
 
     pio_enable_sm_mask_in_sync(pio0, ((1u << HSYNC_SM) | (1u << VSYNC_SM) | (1u << RGB_SM)));
 
