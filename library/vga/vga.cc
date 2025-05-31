@@ -226,8 +226,8 @@ void init_320()
     current_mode = Mode::V_320x240;
 
     // load programs
-    uint hsync_offset = pio_add_program(pio0, &hsync_program);
-    uint vsync_offset = pio_add_program(pio0, &vsync_program);
+    hsync_offset = pio_add_program(pio0, &hsync_program);
+    vsync_offset = pio_add_program(pio0, &vsync_program);
     rgb_offset = pio_add_program(pio0, &rgb320_program);
     printf("hsync_offset = %d\n", hsync_offset);
     printf("vsync_offset = %d\n", vsync_offset);
