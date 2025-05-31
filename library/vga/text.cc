@@ -6,6 +6,7 @@
 
 #include "fb.hh"
 #include "font.hh"
+#include "vga.hh"
 #include "fontgen/ibm_font.hh"
 #include "fontgen/fortuna_font.hh"
 #include "fontgen/vga_font.hh"
@@ -44,7 +45,7 @@ static std::pair<uint16_t, uint16_t> cell_pos(uint16_t cell_x, uint16_t cell_y)
     if (!font)
         return { 0, 0 };
 
-    const int w_border = (fb::screen_width()) / 2 - (columns * font->char_width / 2);
+    const int w_border = (vga::screen_width) / 2 - (columns * font->char_width / 2);
 
     return { w_border + (cell_x * font->char_width), V_BORDER + (cell_y * font->char_height) };
 }
@@ -97,10 +98,10 @@ void set_font(font f)
         current_font = (uint8_t) f;
         Font* font = font_data[(uint8_t) f];
         if (font) {
-            columns = fb::screen_width() / font->char_width;
+            columns = vga::screen_width / font->char_width;
             if (columns > 80)
                 columns = 80;
-            rows = (fb::screen_height() - 2 * V_BORDER) / font->char_height;
+            rows = (vga::screen_height - 2 * V_BORDER) / font->char_height;
             clear_screen();
             set_cursor(0, 0);
         }

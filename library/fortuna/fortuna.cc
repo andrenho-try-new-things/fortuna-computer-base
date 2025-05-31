@@ -22,7 +22,7 @@ void core1_entry()
     rtc::init();
     usb::init();
     user::init();
-    vga::init();
+    vga::init_320();
     external::init();
     audio::init();
 

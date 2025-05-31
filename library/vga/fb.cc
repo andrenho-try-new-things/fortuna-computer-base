@@ -12,7 +12,7 @@ namespace vga::fb {
 void clear(Color color)
 {
     uint8_t color_data = ((uint8_t) color << 4) | (uint8_t) color;
-    memset(vga_data_array, color_data, screen_width() * screen_height() / 2);
+    memset(vga_data_array, color_data, vga::screen_width * vga::screen_height / 2);
 }
 
 void clear_lines(uint16_t y1, uint16_t y2, Color color)
@@ -21,18 +21,18 @@ void clear_lines(uint16_t y1, uint16_t y2, Color color)
         return;
 
     uint8_t color_data = ((uint8_t) color << 4) | (uint8_t) color;
-    uint32_t start = y1 * screen_width() / 2;
-    uint32_t end = y2 * screen_width() / 2;
+    uint32_t start = y1 * vga::screen_width / 2;
+    uint32_t end = y2 * vga::screen_width / 2;
     memset(&vga_data_array[start], color_data, end - start);
 }
 
 void draw_pixel(uint16_t x, uint16_t y, Color color)
 {
     // Range checks (640x480 display)
-    if((x > 639) | (x < 0) | (y > 479) | (y < 0) ) return;
+    if((x > vga::screen_width - 1) | (x < 0) | (y > screen_height - 1) | (y < 0) ) return;
 
     // Which pixel is it?
-    const int pixel = ((640 * y) + x) ;
+    const int pixel = ((screen_width * y) + x) ;
 
     // Is this pixel stored in the first 4 bits
     // of the vga data array index, or the second
@@ -53,8 +53,8 @@ void draw_from_byte(uint8_t byte, uint8_t n_bytes, uint16_t x, uint16_t y, Color
 
 void move_screen_up(uint16_t lines, Color fill_color)
 {
-    uint32_t sz = lines * screen_width() / 2;
-    uint32_t vga_sz = screen_width() * screen_height() / 2;
+    uint32_t sz = lines * vga::screen_width / 2;
+    uint32_t vga_sz = vga::screen_width * vga::screen_height / 2;
     uint8_t color_data = ((uint8_t) fill_color << 4) | (uint8_t) fill_color;
 
     memmove(vga_data_array, &vga_data_array[sz], vga_sz - sz);
