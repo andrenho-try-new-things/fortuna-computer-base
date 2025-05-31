@@ -137,6 +137,9 @@ void init_640()
     hsync_offset = pio_add_program(pio0, &hsync_program);
     vsync_offset = pio_add_program(pio0, &vsync_program);
     rgb_offset = pio_add_program(pio0, &rgb640_program);
+    printf("hsync_offset = %d\n", hsync_offset);
+    printf("vsync_offset = %d\n", vsync_offset);
+    printf("rgb_offset = %d\n", rgb_offset);
 
     // Manually select a few state machines from pio instance pio0.
     // initialize programs (C function in pio files)
@@ -153,7 +156,9 @@ void init_640()
 
     // DMA channels - 0 sends color data, 1 reconfigures and restarts 0
     rgb_chan_0 = dma_claim_unused_channel(true);
+    printf("rgb_chan_0 = %d\n", rgb_chan_0);
     rgb_chan_1 = dma_claim_unused_channel(true);
+    printf("rgb_chan_1 = %d\n", rgb_chan_1);
 
     // Channel Zero (sends color data to PIO VGA machine)
     c0 = dma_channel_get_default_config(rgb_chan_0);  // default configs
@@ -214,6 +219,9 @@ void init_320()
     uint hsync_offset = pio_add_program(pio0, &hsync_program);
     uint vsync_offset = pio_add_program(pio0, &vsync_program);
     rgb_offset = pio_add_program(pio0, &rgb320_program);
+    printf("hsync_offset = %d\n", hsync_offset);
+    printf("vsync_offset = %d\n", vsync_offset);
+    printf("rgb_offset = %d\n", rgb_offset);
 
     // Manually select a few state machines from pio instance pio0.
     // initialize programs (C function in pio files)
@@ -226,11 +234,11 @@ void init_320()
     pio_sm_put_blocking(pio0, VSYNC_SM, V_ACTIVE);
     pio_sm_put_blocking(pio0, RGB_SM, (screen_width / 2) - 1);
 
-    // Start the two pio machine IN SYNC
-
     // DMA channels - 0 sends color data, 1 reconfigures and restarts 0
     rgb_chan_0 = dma_claim_unused_channel(true);
+    printf("rgb_chan_0 = %d\n", rgb_chan_0);
     rgb_chan_1 = dma_claim_unused_channel(true);
+    printf("rgb_chan_1 = %d\n", rgb_chan_1);
 
     // Channel Zero (sends color data to PIO VGA machine)
     c0 = dma_channel_get_default_config(rgb_chan_0);  // default configs
