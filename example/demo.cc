@@ -248,10 +248,12 @@ time          prints the current RTC time
         vga::text::print("mode [1 | 2]   (640x480 or 320x240 pixels)");
     } else if (strcmp(cmd, "mode 1") == 0) {
         vga::text::clear_screen();
+        vga::text::set_cursor(0, 0);
         vga::set_mode(vga::Mode::V_640x480);
         vga::text::print("Mode 1 selected.\n");
     } else if (strcmp(cmd, "mode 2") == 0) {
         vga::text::clear_screen();
+        vga::text::set_cursor(0, 0);
         vga::set_mode(vga::Mode::V_320x240);
         vga::text::print("Mode 2 selected.\n");
     } else if (strcmp(cmd, "mem") == 0) {

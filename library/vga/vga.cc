@@ -84,16 +84,14 @@ static void dma_handler()
 }
 
 
-static void disable_rgb()
-{
-    // pio_enable_sm_mask_in_sync(pio0, (1u << HSYNC_SM) | (1u << VSYNC_SM));
-    // dma_start_channel_mask(~(1u << rgb_chan_0));
-    // dma_unclaim_mask((1 << rgb_chan_0) | (1 << rgb_chan_1));
-    // pio_remove_program_and_unclaim_sm(&rgb_program, pio0, RGB_SM, rgb_offset);
-}
-
 void set_mode(Mode mode)
 {
+    dma_channel_wait_for_finish_blocking(rgb_chan_1);
+
+    pio_sm_set_enabled(pio0, RGB_SM, false);
+    pio_sm_set_enabled(pio0, VSYNC_SM, false);
+    pio_sm_set_enabled(pio0, HSYNC_SM, false);
+
     switch (mode) {
         case Mode::V_640x480:
             screen_width = 640;
@@ -110,12 +108,9 @@ void set_mode(Mode mode)
     }
     current_mode = mode;
 
-    current_scanline = 0;
-
     // pio_enable_sm_mask_in_sync(pio0, 0);
-    pio_sm_set_enabled(pio0, RGB_SM, false);
-    pio_sm_set_enabled(pio0, VSYNC_SM, false);
-    pio_sm_set_enabled(pio0, HSYNC_SM, false);
+
+    current_scanline = 0;
 
     pio_sm_clear_fifos(pio0, RGB_SM);
     pio_sm_put_blocking(pio0, RGB_SM, (screen_width / 2) - 1);
@@ -138,6 +133,8 @@ void set_mode(Mode mode)
         false                       // Don't start immediately.
     );
 
+    /*
+    dma_channel_set_read_addr(rgb_chan_1, &address_pointer, false);
     dma_channel_configure(
         rgb_chan_1,                         // Channel to be configured
         &c1,                                // The configuration we just created
@@ -146,6 +143,7 @@ void set_mode(Mode mode)
         1,                                  // Number of transfers, in this case each is 4 byte
         false                               // Don't start immediately.
     );
+    */
 
     pio_enable_sm_mask_in_sync(pio0, ((1u << HSYNC_SM) | (1u << VSYNC_SM) | (1u << RGB_SM)));
 
