@@ -118,8 +118,7 @@ void set_mode(Mode mode)
 
     pio_sm_clear_fifos(pio0, RGB_SM);
     pio_sm_put_blocking(pio0, RGB_SM, (screen_width / 2) - 1);
-
-    pio_sm_exec(pio0, RGB_SM, pio_encode_jmp(0));
+    pio_sm_exec(pio0, RGB_SM, pio_encode_jmp(rgb_offset));
 
     pio_enable_sm_mask_in_sync(pio0, ((1u << HSYNC_SM) | (1u << VSYNC_SM) | (1u << RGB_SM)));
 
