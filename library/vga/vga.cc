@@ -110,19 +110,24 @@ void set_mode(Mode mode)
     }
     current_mode = mode;
 
-    dma_channel_set_irq0_enabled(rgb_chan_0, false);
     current_scanline = 0;
 
     // pio_enable_sm_mask_in_sync(pio0, 0);
     pio_sm_set_enabled(pio0, RGB_SM, false);
+    pio_sm_set_enabled(pio0, VSYNC_SM, false);
+    pio_sm_set_enabled(pio0, HSYNC_SM, false);
 
     pio_sm_clear_fifos(pio0, RGB_SM);
     pio_sm_put_blocking(pio0, RGB_SM, (screen_width / 2) - 1);
     pio_sm_exec(pio0, RGB_SM, pio_encode_jmp(rgb_offset));
 
-    pio_enable_sm_mask_in_sync(pio0, ((1u << HSYNC_SM) | (1u << VSYNC_SM) | (1u << RGB_SM)));
+    pio_sm_clear_fifos(pio0, HSYNC_SM);
+    pio_sm_put_blocking(pio0, HSYNC_SM, H_ACTIVE);
+    pio_sm_exec(pio0, HSYNC_SM, pio_encode_jmp(hsync_offset));
 
-    dma_channel_set_irq0_enabled(rgb_chan_0, true);
+    pio_sm_clear_fifos(pio0, VSYNC_SM);
+    pio_sm_put_blocking(pio0, VSYNC_SM, V_ACTIVE);
+    pio_sm_exec(pio0, VSYNC_SM, pio_encode_jmp(vsync_offset));
 
     dma_channel_configure(
         rgb_chan_0,                 // Channel to be configured
@@ -132,6 +137,8 @@ void set_mode(Mode mode)
         screen_width / 2,           // Number of transfers; in this case each is 1 byte.
         false                       // Don't start immediately.
     );
+
+    pio_enable_sm_mask_in_sync(pio0, ((1u << HSYNC_SM) | (1u << VSYNC_SM) | (1u << RGB_SM)));
 
     new_resolution = true;
 }
