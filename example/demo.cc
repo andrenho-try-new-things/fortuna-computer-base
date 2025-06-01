@@ -249,18 +249,12 @@ time          prints the current RTC time
     } else if (strcmp(cmd, "mode 1") == 0) {
         vga::text::clear_screen();
         vga::text::set_cursor(0, 0);
-        for (uint8_t i = 0; i < 2; ++i) {
-            vga::set_mode(vga::Mode::V_640x480);
-            sleep_ms(200);
-        }
+        vga::set_mode(vga::Mode::V_640x480);
         vga::text::print("Mode 1 selected.\n");
     } else if (strcmp(cmd, "mode 2") == 0) {
         vga::text::clear_screen();
         vga::text::set_cursor(0, 0);
-        for (uint8_t i = 0; i < 2; ++i) {
-            vga::set_mode(vga::Mode::V_320x240);
-            sleep_ms(200);
-        }
+        vga::set_mode(vga::Mode::V_320x240);
         vga::text::print("Mode 2 selected.\n");
     } else if (strcmp(cmd, "mem") == 0) {
         vga::text::printf("Memory available: %d kB.\n", free_ram() / 1024);

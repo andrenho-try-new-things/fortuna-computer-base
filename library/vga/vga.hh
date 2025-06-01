@@ -13,8 +13,7 @@ extern uint16_t screen_height;
 
 enum class Mode { V_640x480, V_320x240 };
 
-void init_320();
-void init_640();
+void init();
 void set_mode(Mode mode);
 
 };

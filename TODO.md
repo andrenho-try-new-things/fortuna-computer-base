@@ -63,7 +63,8 @@
 
 ## Version 2.1
 
-- [ ] VGA mode 2 at lower resolution (320x200)
+- [x] VGA mode 2 at lower resolution (320x240)
+  - [ ] 640x240 mode
   - [ ] Drawing primitives
   - [ ] Tiles and sprites
   - [ ] Optional double buffer
