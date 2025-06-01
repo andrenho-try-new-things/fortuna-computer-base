@@ -204,6 +204,7 @@ font NAME     sets the font (fortuna | ibm | vga | toshiba)
 led VAL       turns on/off the user panel led (0|1)
 longtext      print a longer Lorem Ipsum text
 mem           print how much RAM is available
+mode [1 | 2]  select VGA mode (640x480 or 320x240 pixels)
 sdcard        print the root directory of the SD card
 settime DATE  sets the time on the RTC (format: YY MM DD HH NN SS)
 switches      shows the current state of the user panel dipswitches
@@ -243,6 +244,8 @@ time          prints the current RTC time
         user::set_led(false);
     } else if (strcmp(cmd, "led 1") == 0) {
         user::set_led(true);
+    } else if (strcmp(cmd, "mode") == 0) {
+        vga::text::print("mode [1 | 2]   (640x480 or 320x240 pixels)");
     } else if (strcmp(cmd, "mode 1") == 0) {
         vga::text::clear_screen();
         vga::set_mode(vga::Mode::V_640x480);

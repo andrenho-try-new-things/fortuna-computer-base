@@ -58,7 +58,7 @@ uint16_t screen_height = 480;
 
 static volatile bool new_resolution = false;
 
-dma_channel_config c0;
+dma_channel_config c0, c1;
 
 static void dma_handler()
 {
@@ -138,6 +138,15 @@ void set_mode(Mode mode)
         false                       // Don't start immediately.
     );
 
+    dma_channel_configure(
+        rgb_chan_1,                         // Channel to be configured
+        &c1,                                // The configuration we just created
+        &dma_hw->ch[rgb_chan_0].read_addr,  // Write address (channel 0 read address)
+        &address_pointer,                   // Read address (POINTER TO AN ADDRESS)
+        1,                                  // Number of transfers, in this case each is 4 byte
+        false                               // Don't start immediately.
+    );
+
     pio_enable_sm_mask_in_sync(pio0, ((1u << HSYNC_SM) | (1u << VSYNC_SM) | (1u << RGB_SM)));
 
     new_resolution = true;
@@ -194,7 +203,7 @@ void init_640()
     );
 
     // Channel One (reconfigures the first channel)
-    dma_channel_config c1 = dma_channel_get_default_config(rgb_chan_1);   // default configs
+    c1 = dma_channel_get_default_config(rgb_chan_1);   // default configs
     channel_config_set_transfer_data_size(&c1, DMA_SIZE_32);              // 32-bit txfers
     channel_config_set_read_increment(&c1, false);                        // no read incrementing
     channel_config_set_write_increment(&c1, false);                       // no write incrementing
@@ -274,7 +283,7 @@ void init_320()
     );
 
     // Channel One (reconfigures the first channel)
-    dma_channel_config c1 = dma_channel_get_default_config(rgb_chan_1);   // default configs
+    c1 = dma_channel_get_default_config(rgb_chan_1);   // default configs
     channel_config_set_transfer_data_size(&c1, DMA_SIZE_32);              // 32-bit txfers
     channel_config_set_read_increment(&c1, false);                        // no read incrementing
     channel_config_set_write_increment(&c1, false);                       // no write incrementing
