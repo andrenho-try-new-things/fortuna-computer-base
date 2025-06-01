@@ -142,8 +142,8 @@ void set_mode(Mode mode)
     dma_channel_cleanup(rgb_chan_1);
     */
 
-    dma_channel_wait_for_finish_blocking(rgb_chan_0);
     dma_channel_wait_for_finish_blocking(rgb_chan_1);
+    dma_channel_wait_for_finish_blocking(rgb_chan_0);
 
     pio_sm_set_enabled(pio0, RGB_SM, false);
     pio_sm_set_enabled(pio0, VSYNC_SM, false);
