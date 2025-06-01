@@ -142,8 +142,8 @@ void set_mode(Mode mode)
     dma_channel_cleanup(rgb_chan_1);
     */
 
-    dma_channel_wait_for_finish_blocking(rgb_chan_1);
     dma_channel_wait_for_finish_blocking(rgb_chan_0);
+    dma_channel_wait_for_finish_blocking(rgb_chan_1);
 
     pio_sm_set_enabled(pio0, RGB_SM, false);
     pio_sm_set_enabled(pio0, VSYNC_SM, false);
@@ -167,8 +167,6 @@ void set_mode(Mode mode)
 
     // pio_enable_sm_mask_in_sync(pio0, 0);
 
-    current_scanline = 0;
-
     pio_sm_clear_fifos(pio0, RGB_SM);
     pio_sm_put_blocking(pio0, RGB_SM, (screen_width / 2) - 1);
     pio_sm_exec(pio0, RGB_SM, pio_encode_jmp(rgb_offset));
@@ -181,14 +179,8 @@ void set_mode(Mode mode)
     pio_sm_put_blocking(pio0, VSYNC_SM, V_ACTIVE);
     pio_sm_exec(pio0, VSYNC_SM, pio_encode_jmp(vsync_offset));
 
-    dma_channel_configure(
-        rgb_chan_0,                 // Channel to be configured
-        &c0,                        // The configuration we just created
-        &pio0->txf[RGB_SM],         // write address (RGB PIO TX FIFO)
-        &vga_data_array,            // The initial read address (pixel color array)
-        screen_width / 2,           // Number of transfers; in this case each is 1 byte.
-        false                       // Don't start immediately.
-    );
+    current_scanline = 0;
+    dma_channel_set_trans_count(rgb_chan_0, screen_width / 2, false);
 
     /*
     dma_channel_set_read_addr(rgb_chan_1, &address_pointer, false);
@@ -203,6 +195,8 @@ void set_mode(Mode mode)
     */
 
     pio_enable_sm_mask_in_sync(pio0, ((1u << HSYNC_SM) | (1u << VSYNC_SM) | (1u << RGB_SM)));
+
+    text::recalculate_matrix_size();
 
     new_resolution = true;
 }

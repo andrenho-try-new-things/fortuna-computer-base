@@ -90,6 +90,17 @@ void clear_screen()
     fb::clear(bg_color);
 }
 
+void recalculate_matrix_size()
+{
+    Font* font = font_data[current_font];
+    if (font) {
+        columns = vga::screen_width / font->char_width;
+        if (columns > 80)
+            columns = 80;
+        rows = (vga::screen_height - 2 * V_BORDER) / font->char_height;
+    }
+}
+
 void set_font(font f)
 {
     if ((uint8_t) f < sizeof(font_data) / sizeof(font_data[0])) {
@@ -98,10 +109,7 @@ void set_font(font f)
         current_font = (uint8_t) f;
         Font* font = font_data[(uint8_t) f];
         if (font) {
-            columns = vga::screen_width / font->char_width;
-            if (columns > 80)
-                columns = 80;
-            rows = (vga::screen_height - 2 * V_BORDER) / font->char_height;
+            recalculate_matrix_size();
             clear_screen();
             set_cursor(0, 0);
         }

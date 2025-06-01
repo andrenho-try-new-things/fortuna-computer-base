@@ -28,6 +28,8 @@ std::pair<Color, Color>       get_color();
 void set_color(Color bg_color, Color fg_color);
 void set_cursor(uint16_t x, uint16_t y);
 
+void recalculate_matrix_size();
+
 }
 
 #endif //TEXT_HH
