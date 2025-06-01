@@ -84,8 +84,65 @@ static void dma_handler()
 }
 
 
+void init_dma()
+{
+    // Channel Zero (sends color data to PIO VGA machine)
+    c0 = dma_channel_get_default_config(rgb_chan_0);  // default configs
+    channel_config_set_transfer_data_size(&c0, DMA_SIZE_8);              // 8-bit txfers
+    channel_config_set_read_increment(&c0, true);                        // yes read incrementing
+    channel_config_set_write_increment(&c0, false);                      // no write incrementing
+    channel_config_set_dreq(&c0, DREQ_PIO0_TX2) ;                        // DREQ_PIO0_TX2 pacing (FIFO)
+    channel_config_set_chain_to(&c0, rgb_chan_1);                        // chain to other channel
+
+    dma_channel_configure(
+        rgb_chan_0,                 // Channel to be configured
+        &c0,                        // The configuration we just created
+        &pio0->txf[RGB_SM],         // write address (RGB PIO TX FIFO)
+        &vga_data_array,            // The initial read address (pixel color array)
+        screen_width / 2,           // Number of transfers; in this case each is 1 byte.
+        false                       // Don't start immediately.
+    );
+
+    // Channel One (reconfigures the first channel)
+    c1 = dma_channel_get_default_config(rgb_chan_1);   // default configs
+    channel_config_set_transfer_data_size(&c1, DMA_SIZE_32);              // 32-bit txfers
+    channel_config_set_read_increment(&c1, false);                        // no read incrementing
+    channel_config_set_write_increment(&c1, false);                       // no write incrementing
+    channel_config_set_chain_to(&c1, rgb_chan_0);                         // chain to other channel
+
+    dma_channel_configure(
+        rgb_chan_1,                         // Channel to be configured
+        &c1,                                // The configuration we just created
+        &dma_hw->ch[rgb_chan_0].read_addr,  // Write address (channel 0 read address)
+        &address_pointer,                   // Read address (POINTER TO AN ADDRESS)
+        1,                                  // Number of transfers, in this case each is 4 byte
+        false                               // Don't start immediately.
+    );
+
+    // enable DMA
+    dma_channel_set_irq0_enabled(rgb_chan_0, true);
+    irq_set_exclusive_handler(DMA_IRQ_0, dma_handler);
+    irq_set_enabled(DMA_IRQ_0, true);
+    irq_set_priority(DMA_IRQ_0, 0);
+
+    // start DMA channel
+    dma_start_channel_mask((1u << rgb_chan_0)) ;
+}
+
+
 void set_mode(Mode mode)
 {
+    /*
+    dma_channel_wait_for_finish_blocking(rgb_chan_0);
+    dma_channel_abort(rgb_chan_0);
+    dma_channel_cleanup(rgb_chan_0);
+
+    dma_channel_wait_for_finish_blocking(rgb_chan_1);
+    dma_channel_abort(rgb_chan_1);
+    dma_channel_cleanup(rgb_chan_1);
+    */
+
+    dma_channel_wait_for_finish_blocking(rgb_chan_0);
     dma_channel_wait_for_finish_blocking(rgb_chan_1);
 
     pio_sm_set_enabled(pio0, RGB_SM, false);
@@ -183,47 +240,7 @@ void init_640()
     rgb_chan_1 = dma_claim_unused_channel(true);
     printf("rgb_chan_1 = %d\n", rgb_chan_1);
 
-    // Channel Zero (sends color data to PIO VGA machine)
-    c0 = dma_channel_get_default_config(rgb_chan_0);  // default configs
-    channel_config_set_transfer_data_size(&c0, DMA_SIZE_8);              // 8-bit txfers
-    channel_config_set_read_increment(&c0, true);                        // yes read incrementing
-    channel_config_set_write_increment(&c0, false);                      // no write incrementing
-    channel_config_set_dreq(&c0, DREQ_PIO0_TX2) ;                        // DREQ_PIO0_TX2 pacing (FIFO)
-    channel_config_set_chain_to(&c0, rgb_chan_1);                        // chain to other channel
-
-    dma_channel_configure(
-        rgb_chan_0,                 // Channel to be configured
-        &c0,                        // The configuration we just created
-        &pio0->txf[RGB_SM],         // write address (RGB PIO TX FIFO)
-        &vga_data_array,            // The initial read address (pixel color array)
-        screen_width / 2,           // Number of transfers; in this case each is 1 byte.
-        false                       // Don't start immediately.
-    );
-
-    // Channel One (reconfigures the first channel)
-    c1 = dma_channel_get_default_config(rgb_chan_1);   // default configs
-    channel_config_set_transfer_data_size(&c1, DMA_SIZE_32);              // 32-bit txfers
-    channel_config_set_read_increment(&c1, false);                        // no read incrementing
-    channel_config_set_write_increment(&c1, false);                       // no write incrementing
-    channel_config_set_chain_to(&c1, rgb_chan_0);                         // chain to other channel
-
-    dma_channel_configure(
-        rgb_chan_1,                         // Channel to be configured
-        &c1,                                // The configuration we just created
-        &dma_hw->ch[rgb_chan_0].read_addr,  // Write address (channel 0 read address)
-        &address_pointer,                   // Read address (POINTER TO AN ADDRESS)
-        1,                                  // Number of transfers, in this case each is 4 byte
-        false                               // Don't start immediately.
-    );
-
-    // enable DMA
-    dma_channel_set_irq0_enabled(rgb_chan_0, true);
-    irq_set_exclusive_handler(DMA_IRQ_0, dma_handler);
-    irq_set_enabled(DMA_IRQ_0, true);
-    irq_set_priority(DMA_IRQ_0, 0);
-
-    // start DMA channel
-    dma_start_channel_mask((1u << rgb_chan_0)) ;
+    init_dma();
 
     pio_enable_sm_mask_in_sync(pio0, ((1u << HSYNC_SM) | (1u << VSYNC_SM) | (1u << RGB_SM)));
 
@@ -263,47 +280,7 @@ void init_320()
     rgb_chan_1 = dma_claim_unused_channel(true);
     printf("rgb_chan_1 = %d\n", rgb_chan_1);
 
-    // Channel Zero (sends color data to PIO VGA machine)
-    c0 = dma_channel_get_default_config(rgb_chan_0);  // default configs
-    channel_config_set_transfer_data_size(&c0, DMA_SIZE_8);              // 8-bit txfers
-    channel_config_set_read_increment(&c0, true);                        // yes read incrementing
-    channel_config_set_write_increment(&c0, false);                      // no write incrementing
-    channel_config_set_dreq(&c0, DREQ_PIO0_TX2) ;                        // DREQ_PIO0_TX2 pacing (FIFO)
-    channel_config_set_chain_to(&c0, rgb_chan_1);                        // chain to other channel
-
-    dma_channel_configure(
-        rgb_chan_0,                 // Channel to be configured
-        &c0,                        // The configuration we just created
-        &pio0->txf[RGB_SM],         // write address (RGB PIO TX FIFO)
-        &vga_data_array,            // The initial read address (pixel color array)
-        screen_width / 2,           // Number of transfers; in this case each is 1 byte.
-        false                       // Don't start immediately.
-    );
-
-    // Channel One (reconfigures the first channel)
-    c1 = dma_channel_get_default_config(rgb_chan_1);   // default configs
-    channel_config_set_transfer_data_size(&c1, DMA_SIZE_32);              // 32-bit txfers
-    channel_config_set_read_increment(&c1, false);                        // no read incrementing
-    channel_config_set_write_increment(&c1, false);                       // no write incrementing
-    channel_config_set_chain_to(&c1, rgb_chan_0);                         // chain to other channel
-
-    dma_channel_configure(
-        rgb_chan_1,                         // Channel to be configured
-        &c1,                                // The configuration we just created
-        &dma_hw->ch[rgb_chan_0].read_addr,  // Write address (channel 0 read address)
-        &address_pointer,                   // Read address (POINTER TO AN ADDRESS)
-        1,                                  // Number of transfers, in this case each is 4 byte
-        false                               // Don't start immediately.
-    );
-
-    // enable DMA
-    dma_channel_set_irq0_enabled(rgb_chan_0, true);
-    irq_set_exclusive_handler(DMA_IRQ_0, dma_handler);
-    irq_set_enabled(DMA_IRQ_0, true);
-    irq_set_priority(DMA_IRQ_0, 0);
-
-    // start DMA channel
-    dma_start_channel_mask((1u << rgb_chan_0)) ;
+    init_dma();
 
     pio_enable_sm_mask_in_sync(pio0, ((1u << HSYNC_SM) | (1u << VSYNC_SM) | (1u << RGB_SM)));
 
