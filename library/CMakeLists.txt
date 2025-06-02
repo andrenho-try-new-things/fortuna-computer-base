@@ -19,7 +19,8 @@ pico_sdk_init()
 
 project(fortuna-io-board VERSION 2.0)
 
-add_library(${PROJECT_NAME} INTERFACE)
+add_library(${PROJECT_NAME} INTERFACE
+		vga/sprite.hh)
 
 #
 # sources
@@ -35,6 +36,7 @@ target_sources(${PROJECT_NAME} INTERFACE
 		${CMAKE_CURRENT_LIST_DIR}/vga/text.cc
 		${CMAKE_CURRENT_LIST_DIR}/vga/text.hh
 		${CMAKE_CURRENT_LIST_DIR}/vga/font.hh
+		${CMAKE_CURRENT_LIST_DIR}/vga/sprite.hh
 		${CMAKE_CURRENT_LIST_DIR}/usb/usb.cc
 		${CMAKE_CURRENT_LIST_DIR}/usb/usb.hh
 		${CMAKE_CURRENT_LIST_DIR}/usb/keyboard.cc

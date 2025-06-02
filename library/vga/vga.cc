@@ -76,9 +76,9 @@ static void dma_handler()   // DMA handler is called at the end of each HSYNC
     }
 
     if (current_mode == Mode::V_640x480)
-        address_pointer = &vga_data_array[(screen_width / 2) * current_scanline];
+        address_pointer = &vga_data_array[(screen_width >> 1) * current_scanline];
     else
-        address_pointer = &vga_data_array[(screen_width / 2) * (current_scanline / 2) + (current_framebuffer * FRAMEBUFFER_SZ)];
+        address_pointer = &vga_data_array[(screen_width >> 1) * (current_scanline >> 1) + (current_framebuffer * FRAMEBUFFER_SZ)];
 }
 
 
