@@ -233,7 +233,7 @@ time          prints the current RTC time
         vga::text::print("Font 'vga' selected.\n");
     } else if (strcmp(cmd, "font toshiba") == 0) {
         vga::text::set_font(vga::text::font::Toshiba);
-        vga::text::print("Font 'vga' selected.\n");
+        vga::text::print("Font 'toshiba' selected.\n");
     } else if (strcmp(cmd, "font") == 0) {
         vga::text::print("font NUMBER\n");
     } else if (strcmp(cmd, "sdcard") == 0) {

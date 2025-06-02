@@ -53,6 +53,7 @@ static int current_scanline = 0;
 static uint32_t current_frame = 0;
 
 static Mode current_mode = Mode::V_640x480;
+static pio_program const* current_rgb_program = nullptr;
 uint16_t screen_width = 640;
 uint16_t screen_height = 480;
 
@@ -124,8 +125,8 @@ static void init_dma()
 static void _set_mode(Mode mode)
 {
     // wait for DMA to finish
-    dma_channel_wait_for_finish_blocking(rgb_chan_0);
     dma_channel_wait_for_finish_blocking(rgb_chan_1);
+    dma_channel_wait_for_finish_blocking(rgb_chan_0);
 
     // disable PIO programs
     pio_sm_set_enabled(pio0, RGB_SM, false);
@@ -133,21 +134,25 @@ static void _set_mode(Mode mode)
     pio_sm_set_enabled(pio0, HSYNC_SM, false);
 
     // set mode, and replace RGB program
+    pio_program_t const* new_program = nullptr;
     switch (mode) {
         case Mode::V_640x480:
             screen_width = 640;
             screen_height = 480;
-            pio_remove_program(pio0, &rgb320_program, rgb_offset);
-            rgb_offset = pio_add_program(pio0, &rgb640_program);
+            new_program = &rgb640_program;
             break;
         case Mode::V_320x240:
             screen_width = 320;
             screen_height = 240;
-            pio_remove_program(pio0, &rgb640_program, rgb_offset);
-            rgb_offset = pio_add_program(pio0, &rgb320_program);
+            new_program = &rgb320_program;
             break;
     }
     current_mode = mode;
+
+    // replace RGB PIO program
+    pio_remove_program(pio0, current_rgb_program, rgb_offset);
+    rgb_offset = pio_add_program(pio0, new_program);
+    current_rgb_program = new_program;
 
     // reset data to feed the PIO programs
     pio_sm_clear_fifos(pio0, RGB_SM);
@@ -187,9 +192,7 @@ void initialize_pio()
     hsync_offset = pio_add_program(pio0, &hsync_program);
     vsync_offset = pio_add_program(pio0, &vsync_program);
     rgb_offset = pio_add_program(pio0, &rgb640_program);
-    printf("hsync_offset = %d\n", hsync_offset);
-    printf("vsync_offset = %d\n", vsync_offset);
-    printf("rgb_offset = %d\n", rgb_offset);
+    current_rgb_program = &rgb640_program;
 
     // initialize PIO programs
     hsync_program_init(pio0, HSYNC_SM, hsync_offset, HSYNC);
@@ -203,9 +206,7 @@ void initialize_pio()
 
     // claim DMA channels
     rgb_chan_0 = dma_claim_unused_channel(true);
-    printf("rgb_chan_0 = %d\n", rgb_chan_0);
     rgb_chan_1 = dma_claim_unused_channel(true);
-    printf("rgb_chan_1 = %d\n", rgb_chan_1);
 
     // initialize DMA
     init_dma();

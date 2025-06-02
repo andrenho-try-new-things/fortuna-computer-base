@@ -94,7 +94,7 @@ void recalculate_matrix_size()
 {
     Font* font = font_data[current_font];
     if (font) {
-        columns = vga::screen_width / font->char_width;
+        columns = (vga::screen_width / font->char_width) - 1;
         if (columns > 80)
             columns = 80;
         rows = (vga::screen_height - 2 * V_BORDER) / font->char_height;
