@@ -30,6 +30,7 @@ void core1_entry()
     user::init_interupts();
 
     for (;;) {
+        vga::step();
         usb::step();
         if (config.core1_step_function)
             config.core1_step_function();

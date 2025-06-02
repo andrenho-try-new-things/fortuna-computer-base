@@ -24,9 +24,6 @@ enum vga_pins {HSYNC=16, VSYNC, LO_GRN, HI_GRN, BLUE_PIN, RED_PIN} ;
 #define RGB_ACTIVE 319    // (horizontal active)/2 - 1
 // #define RGB_ACTIVE 639 // change to this if 1 pixel/byte
 
-// Length of the pixel array, and number of DMA transfers
-#define TXCOUNT 153600 // Total pixels/2 (since we have 2 pixels per byte)
-
 // Pixel color array that is DMA's to the PIO machines and
 // a pointer to the ADDRESS of this color array.
 // Note that this array is automatically initialized to all 0's (black)
@@ -37,8 +34,8 @@ enum vga_pins {HSYNC=16, VSYNC, LO_GRN, HI_GRN, BLUE_PIN, RED_PIN} ;
 namespace vga {
 
 // VGA framebuffer
-unsigned char vga_data_array[TXCOUNT];
-static void* address_pointer = &vga_data_array[0] ;
+uint8_t* vga_data_array;
+static void* address_pointer = nullptr;
 
 static bool first_setup = true;
 static int rgb_chan_0, rgb_chan_1;
@@ -49,11 +46,15 @@ constexpr uint HSYNC_SM = 0;
 constexpr uint VSYNC_SM = 1;
 constexpr uint RGB_SM = 2;
 
-static int current_scanline = 0;
+static int      current_scanline = 0;
 static uint32_t current_frame = 0;
+static uint8_t  current_framebuffer = 0;
+
+constexpr uint32_t FRAMEBUFFER_SZ = 320 * 240 / 2;
 
 static Mode current_mode = Mode::V_640x480;
 static pio_program const* current_rgb_program = nullptr;
+static volatile bool new_vsync = false;
 uint16_t screen_width = 640;
 uint16_t screen_height = 480;
 
@@ -67,12 +68,17 @@ static void dma_handler()   // DMA handler is called at the end of each HSYNC
     if (current_scanline >= 480) {       // last scanline?
         current_scanline = 0;            // restart scanline
         current_frame++;                 // increment frame counter
+
+        if (current_mode == Mode::V_SPRITES) {
+            current_framebuffer = (current_framebuffer == 1) ? 2 : 1;
+            new_vsync = true;
+        }
     }
 
     if (current_mode == Mode::V_640x480)
         address_pointer = &vga_data_array[(screen_width / 2) * current_scanline];
     else
-        address_pointer = &vga_data_array[(screen_width / 2) * (current_scanline / 2)];
+        address_pointer = &vga_data_array[(screen_width / 2) * (current_scanline / 2) + (current_framebuffer * FRAMEBUFFER_SZ)];
 }
 
 
@@ -140,19 +146,31 @@ static void _set_mode(Mode mode)
             screen_width = 640;
             screen_height = 480;
             new_program = &rgb640_program;
+            current_framebuffer = 0;
             break;
         case Mode::V_320x240:
             screen_width = 320;
             screen_height = 240;
             new_program = &rgb320_program;
+            current_framebuffer = 0;
             break;
         case Mode::V_640x240:
             screen_width = 640;
             screen_height = 240;
             new_program = &rgb640_program;
+            current_framebuffer = 0;
+            break;
+        case Mode::V_SPRITES:
+            screen_width = 320;
+            screen_height = 240;
+            new_program = &rgb320_program;
+            current_framebuffer = 1;
             break;
     }
     current_mode = mode;
+    free(vga_data_array);
+    vga_data_array = (uint8_t *) calloc(1, screen_width * screen_height / 2 * (mode == Mode::V_SPRITES ? 3 : 1));
+    address_pointer = &vga_data_array[0];
 
     // replace RGB PIO program
     pio_remove_program(pio0, current_rgb_program, rgb_offset);
@@ -227,11 +245,28 @@ void init()
     screen_height = 480;
     current_mode = Mode::V_640x480;
 
+    vga_data_array = (uint8_t *) calloc(1, screen_width * screen_height / 2);
+    address_pointer = &vga_data_array[0];
+
     initialize_pio();
 
     text::init();
 
     printf("VGA initialized.\n");
+}
+
+void step()
+{
+    if (new_vsync && current_mode == Mode::V_SPRITES) {
+        // copy framebuffer 0 on top of current framebuffer
+        uint8_t opposite_framebuffer = (current_framebuffer == 1) ? 2 : 1;
+        memcpy(&vga_data_array[FRAMEBUFFER_SZ * opposite_framebuffer], &vga_data_array[0], FRAMEBUFFER_SZ);
+
+        // add sprites
+        // TODO
+
+        new_vsync = false;
+    }
 }
 
 }

@@ -6,15 +6,16 @@
 
 namespace vga {
 
-extern unsigned char vga_data_array[];
+extern uint8_t* vga_data_array;
 
 extern uint16_t screen_width;
 extern uint16_t screen_height;
 
-enum class Mode { V_640x480, V_320x240, V_640x240 };
+enum class Mode { V_640x480, V_640x240, V_320x240, V_SPRITES };
 
 void init();
 void set_mode(Mode mode);
+void step();
 
 };
 
