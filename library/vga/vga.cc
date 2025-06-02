@@ -146,6 +146,11 @@ static void _set_mode(Mode mode)
             screen_height = 240;
             new_program = &rgb320_program;
             break;
+        case Mode::V_640x240:
+            screen_width = 640;
+            screen_height = 240;
+            new_program = &rgb640_program;
+            break;
     }
     current_mode = mode;
 

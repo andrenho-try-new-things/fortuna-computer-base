@@ -64,9 +64,9 @@
 ## Version 2.1
 
 - [x] VGA mode 2 at lower resolution (320x240)
-  - [ ] 640x240 mode
-  - [ ] Drawing primitives
+  - [x] 640x240 mode
   - [ ] Tiles and sprites
+  - [ ] Drawing primitives
   - [ ] Optional double buffer
 - [ ] USB
   - [ ] Mouse

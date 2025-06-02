@@ -204,7 +204,7 @@ font NAME     sets the font (fortuna | ibm | vga | toshiba)
 led VAL       turns on/off the user panel led (0|1)
 longtext      print a longer Lorem Ipsum text
 mem           print how much RAM is available
-mode [1 | 2]  select VGA mode (640x480 or 320x240 pixels)
+mode NUM      select VGA mode ([1] 640x480, [2] 320x240, [3] 640x240)
 sdcard        print the root directory of the SD card
 settime DATE  sets the time on the RTC (format: YY MM DD HH NN SS)
 switches      shows the current state of the user panel dipswitches
@@ -245,7 +245,7 @@ time          prints the current RTC time
     } else if (strcmp(cmd, "led 1") == 0) {
         user::set_led(true);
     } else if (strcmp(cmd, "mode") == 0) {
-        vga::text::print("mode [1 | 2]   (640x480 or 320x240 pixels)\n");
+        vga::text::print("mode [1 | 2 | 3]   (640x480, 320x240 or 640x240 pixels)\n");
     } else if (strcmp(cmd, "mode 1") == 0) {
         vga::text::clear_screen();
         vga::text::set_cursor(0, 0);
@@ -256,6 +256,11 @@ time          prints the current RTC time
         vga::text::set_cursor(0, 0);
         vga::set_mode(vga::Mode::V_320x240);
         vga::text::print("Mode 2 selected.\n");
+    } else if (strcmp(cmd, "mode 3") == 0) {
+        vga::text::clear_screen();
+        vga::text::set_cursor(0, 0);
+        vga::set_mode(vga::Mode::V_640x240);
+        vga::text::print("Mode 3 selected.\n");
     } else if (strcmp(cmd, "mem") == 0) {
         vga::text::printf("Memory available: %d kB.\n", free_ram() / 1024);
     } else if (strcmp(cmd, "noise") == 0) {
