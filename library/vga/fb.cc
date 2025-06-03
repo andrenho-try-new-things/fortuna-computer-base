@@ -1,5 +1,6 @@
 #include "fb.hh"
 
+#include <cmath>
 #include <cstring>
 
 #include "vga.hh"
@@ -58,9 +59,73 @@ void draw_from_byte(uint8_t byte, uint8_t n_bytes, uint16_t x, uint16_t y, Color
     }
 }
 
+static void draw_hline(uint16_t x1, uint16_t y, uint16_t x2, Color color)
+{
+    if (x1 & 1) {
+        inline_draw_pixel(x1, y, color);
+        ++x1;
+    }
+    if (!(x2 & 1)) {
+        inline_draw_pixel(x2, y, color);
+        --x2;
+    }
+
+    const int pixel = ((screen_width * y) + x1);
+    memset(&vga_data_array[pixel >> 1], ((uint8_t) color << 4) | (uint8_t) color, (x2 >> 1) - (x1 >> 1) + 1);
+}
+
+static void draw_vline(uint16_t x, uint16_t y1, uint16_t y2, Color color)
+{
+    for (uint16_t y = y1; y <= y2; ++y)
+        inline_draw_pixel(x, y, color);
+}
+
 void draw_line(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, Color color)
 {
+    if (y1 == y2) {
+        draw_hline(x1, y1, x2, color);
+    } else if (x1 == x2) {
+        draw_vline(x1, y1, y2, color);
+    } else {
+        auto swap = [](uint16_t a, uint16_t b) { uint16_t t = a; a = b; b = t; };
 
+        int16_t steep = abs(y2 - y1) > abs(x2 - x1);
+        if (steep) {
+            swap(x1, y1);
+            swap(x2, y2);
+        }
+
+        if (x1 > x2) {
+            swap(x1, x2);
+            swap(y1, y2);
+        }
+
+        int16_t dx, dy;
+        dx = (int16_t) x2 - (int16_t) x1;
+        dy = abs((int16_t) y2 - (int16_t) y1);
+
+        int16_t err = dx / 2;
+        int16_t ystep;
+
+        if (y1 < y2) {
+            ystep = 1;
+        } else {
+            ystep = -1;
+        }
+
+        for (; x1<=x2; x1++) {
+            if (steep) {
+                inline_draw_pixel(y1, x1, color);
+            } else {
+                inline_draw_pixel(x1, y1, color);
+            }
+            err -= dy;
+            if (err < 0) {
+                y1 += ystep;
+                err += dx;
+            }
+        }
+    }
 }
 
 void draw_rectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, Color color)

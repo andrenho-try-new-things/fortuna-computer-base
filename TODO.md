@@ -68,7 +68,7 @@
   - [x] Tiles and sprites
   - [ ] Drawing primitives
     - [x] Draw pixel
-    - [ ] Draw line
+    - [x] Draw line
     - [ ] Draw rectangle (line/filled)
     - [ ] Draw ellipsis (line/filled)
     - [ ] Fill area

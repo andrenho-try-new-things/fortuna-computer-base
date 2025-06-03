@@ -223,6 +223,7 @@ time          prints the current RTC time
         vga::text::clear_screen();
         vga::text::set_cursor(0, 0);
         vga::fb::draw_line(3, 50, 13, 50, Color::White);
+        vga::fb::draw_line(4, 52, 14, 52, Color::White);
     } else if (strcmp(cmd, "longtext") == 0) {
         longtext();
     } else if (strcmp(cmd, "font") == 0) {
@@ -379,6 +380,12 @@ int main()
 
     uint8_t data[128]; for (int i = 0; i < 128; ++i) data[i] = i;
     external::add_response(data, 128);
+
+        vga::set_mode(vga::Mode::V_320x240);
+        vga::fb::draw_line(3, 50, 13, 50, Color::White);
+        vga::fb::draw_line(4, 52, 14, 52, Color::White);
+        vga::fb::draw_line(10, 45, 10, 59, Color::Red);
+        vga::fb::draw_line(10, 45, 30, 60, Color::Cyan);
 
 next_command:
     vga::text::print("? ");
