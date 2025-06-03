@@ -194,6 +194,22 @@ static void set_time(const char* cmd)
     }
 }
 
+static void draw_shapes()
+{
+    vga::fb::draw_line(3, 50, 13, 50, Color::White);
+    vga::fb::draw_line(4, 52, 14, 52, Color::Lime);
+    vga::fb::draw_line(10, 45, 10, 59, Color::Red);
+    vga::fb::draw_line(10, 45, 30, 60, Color::Cyan);
+    vga::fb::draw_rectangle(50, 50, 40, 20, Color::Magenta);
+    vga::fb::draw_rectangle_filled(60, 60, 40, 20, Color::DarkOrange);
+    vga::fb::draw_ellipse(130, 50, 20, 12, Color::Pink);
+    vga::fb::draw_ellipse_filled(160, 50, 12, 25, Color::Blue);
+
+    vga::fb::draw_rectangle(220, 50, 40, 40, Color::White);
+    vga::fb::draw_ellipse(250, 70, 15, 30, Color::White);
+    vga::fb::fill_area(222, 52, Color::Orange);
+}
+
 void execute_command(const char* cmd)
 {
     if (strcmp(cmd, "help") == 0) {
@@ -222,8 +238,7 @@ time          prints the current RTC time
     } else if (strcmp(cmd, "draw") == 0) {
         vga::text::clear_screen();
         vga::text::set_cursor(0, 0);
-        vga::fb::draw_line(3, 50, 13, 50, Color::White);
-        vga::fb::draw_line(4, 52, 14, 52, Color::White);
+        draw_shapes();
     } else if (strcmp(cmd, "longtext") == 0) {
         longtext();
     } else if (strcmp(cmd, "font") == 0) {
@@ -367,7 +382,6 @@ static Sprite sprites[] = {
 int main()
 {
     fortuna::init();
-    // sleep_ms(3000);
 
     create_music();
 
@@ -381,11 +395,8 @@ int main()
     uint8_t data[128]; for (int i = 0; i < 128; ++i) data[i] = i;
     external::add_response(data, 128);
 
-        vga::set_mode(vga::Mode::V_320x240);
-        vga::fb::draw_line(3, 50, 13, 50, Color::White);
-        vga::fb::draw_line(4, 52, 14, 52, Color::White);
-        vga::fb::draw_line(10, 45, 10, 59, Color::Red);
-        vga::fb::draw_line(10, 45, 30, 60, Color::Cyan);
+    vga::set_mode(vga::Mode::V_320x240);
+    draw_shapes();
 
 next_command:
     vga::text::print("? ");

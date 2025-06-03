@@ -69,9 +69,9 @@
   - [ ] Drawing primitives
     - [x] Draw pixel
     - [x] Draw line
-    - [ ] Draw rectangle (line/filled)
-    - [ ] Draw ellipsis (line/filled)
-    - [ ] Fill area
+    - [x] Draw rectangle (line/filled)
+    - [x] Draw ellipsis (line/filled)
+    - [x] Fill area
     - [ ] Draw image (with/without transparency)
     - [ ] Draw character / text
   - [ ] Customizable fonts

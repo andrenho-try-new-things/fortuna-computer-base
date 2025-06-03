@@ -50,6 +50,15 @@ void draw_pixel(uint16_t x, uint16_t y, Color color)
     inline_draw_pixel(x, y, color);
 }
 
+Color get_pixel_color(uint16_t x, uint16_t y)
+{
+    const int pixel = ((screen_width * y) + x) ;
+    if (pixel & 1)
+        return (Color) ((vga_data_array[pixel>>1] >> 4) & 0xf);
+    else
+        return (Color) (vga_data_array[pixel>>1] & 0xf);
+}
+
 
 void draw_from_byte(uint8_t byte, uint8_t n_bytes, uint16_t x, uint16_t y, Color bg_color, Color fg_color)
 {
@@ -130,27 +139,201 @@ void draw_line(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, Color color)
 
 void draw_rectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, Color color)
 {
-
+    draw_hline(x, y, x + w, color);
+    draw_hline(x, y + h, x + w, color);
+    draw_vline(x, y, y + h, color);
+    draw_vline(x + w, y, y + h, color);
 }
 
 void draw_rectangle_filled(uint16_t x, uint16_t y, uint16_t w, uint16_t h, Color color)
 {
-
+    for (int yy = y; yy < (y + h); ++yy)
+        draw_hline(x, yy, (x + w), color);
 }
 
-void draw_ellipse(uint16_t x, uint16_t y, uint16_t w, uint16_t h, Color color)
+void draw_ellipse(uint16_t xc, uint16_t yc, uint16_t rx, uint16_t ry, Color color)
 {
+    float dx, dy, d1, d2, x, y;
+    x = 0;
+    y = ry;
 
+    // Initial decision parameter of region 1
+    d1 = (ry * ry)
+         - (rx * rx * ry)
+         + (0.25 * rx * rx);
+    dx = 2 * ry * ry * x;
+    dy = 2 * rx * rx * y;
+
+    // For region 1
+    while (dx < dy) {
+
+        // Print points based on 4-way symmetry
+        inline_draw_pixel(x + xc, y + yc, color);
+        inline_draw_pixel(-x + xc, y + yc, color);
+        inline_draw_pixel(x + xc, -y + yc, color);
+        inline_draw_pixel(-x + xc, -y + yc, color);
+
+        // Checking and updating value of
+        // decision parameter based on algorithm
+        if (d1 < 0) {
+            x++;
+            dx = dx + (2 * ry * ry);
+            d1 = d1 + dx + (ry * ry);
+        }
+        else {
+            x++;
+            y--;
+            dx = dx + (2 * ry * ry);
+            dy = dy - (2 * rx * rx);
+            d1 = d1 + dx - dy + (ry * ry);
+        }
+    }
+
+    // Decision parameter of region 2
+    d2 = ((ry * ry) * ((x + 0.5) * (x + 0.5)))
+         + ((rx * rx) * ((y - 1) * (y - 1)))
+         - (rx * rx * ry * ry);
+
+    // Plotting points of region 2
+    while (y >= 0) {
+
+        // printing points based on 4-way symmetry
+        inline_draw_pixel(x + xc, y + yc, color);
+        inline_draw_pixel(-x + xc, y + yc, color);
+        inline_draw_pixel(x + xc, -y + yc, color);
+        inline_draw_pixel(-x + xc, -y + yc, color);
+
+        // Checking and updating parameter
+        // value based on algorithm
+        if (d2 > 0) {
+            y--;
+            dy = dy - (2 * rx * rx);
+            d2 = d2 + (rx * rx) - dy;
+        }
+        else {
+            y--;
+            x++;
+            dx = dx + (2 * ry * ry);
+            dy = dy - (2 * rx * rx);
+            d2 = d2 + dx - dy + (rx * rx);
+        }
+    }
 }
 
-void draw_ellipse_filled(uint16_t x, uint16_t y, uint16_t w, uint16_t h, Color color)
+void draw_ellipse_filled(uint16_t xc, uint16_t yc, uint16_t rx, uint16_t ry, Color color)
 {
+    float dx, dy, d1, d2, x, y;
+    x = 0;
+    y = ry;
 
+    // Initial decision parameter of region 1
+    d1 = (ry * ry)
+         - (rx * rx * ry)
+         + (0.25 * rx * rx);
+    dx = 2 * ry * ry * x;
+    dy = 2 * rx * rx * y;
+
+    // For region 1
+    while (dx < dy) {
+
+        // Print points based on 4-way symmetry
+        draw_hline(-x + xc, y + yc, x + xc, color);
+        draw_hline(-x + xc, -y + yc, x + xc, color);
+
+        // Checking and updating value of
+        // decision parameter based on algorithm
+        if (d1 < 0) {
+            x++;
+            dx = dx + (2 * ry * ry);
+            d1 = d1 + dx + (ry * ry);
+        }
+        else {
+            x++;
+            y--;
+            dx = dx + (2 * ry * ry);
+            dy = dy - (2 * rx * rx);
+            d1 = d1 + dx - dy + (ry * ry);
+        }
+    }
+
+    // Decision parameter of region 2
+    d2 = ((ry * ry) * ((x + 0.5) * (x + 0.5)))
+         + ((rx * rx) * ((y - 1) * (y - 1)))
+         - (rx * rx * ry * ry);
+
+    // Plotting points of region 2
+    while (y >= 0) {
+
+        // printing points based on 4-way symmetry
+        draw_hline(-x + xc, y + yc, x + xc, color);
+        draw_hline(-x + xc, -y + yc, x + xc, color);
+
+        // Checking and updating parameter
+        // value based on algorithm
+        if (d2 > 0) {
+            y--;
+            dy = dy - (2 * rx * rx);
+            d2 = d2 + (rx * rx) - dy;
+        }
+        else {
+            y--;
+            x++;
+            dx = dx + (2 * ry * ry);
+            dy = dy - (2 * rx * rx);
+            d2 = d2 + dx - dy + (rx * rx);
+        }
+    }
 }
 
 void fill_area(uint16_t x, uint16_t y, Color color)
 {
+    static struct { uint16_t x, y; } stack[256];
+    static int top = -1;
 
+    // Get target color and check if fill needed
+    Color target = get_pixel_color(x, y);
+    if (target == color) return;
+
+    // Push starting point
+    stack[++top] = {x, y};
+
+    while (top >= 0) {
+        uint16_t px = stack[top].x;
+        uint16_t py = stack[top].y;
+        top--;
+
+        // Check bounds and color
+        if (px >= screen_width || py >= screen_height) continue;
+        if (get_pixel_color(px, py) != target) continue;
+
+        // Find left and right bounds of this scanline
+        uint16_t left = px, right = px;
+
+        // Scan left
+        while (left > 0 && get_pixel_color(left - 1, py) == target) {
+            left--;
+        }
+
+        // Scan right
+        while (right < screen_width - 1 && get_pixel_color(right + 1, py) == target) {
+            right++;
+        }
+
+        // Fill the line
+        draw_hline(left, py, right, color);
+
+        // Add points above and below to stack
+        for (uint16_t i = left; i <= right; i++) {
+            // Above
+            if (py > 0 && top < 255 && get_pixel_color(i, py - 1) == target) {
+                stack[++top] = {i, (uint16_t)(py - 1) };
+            }
+            // Below
+            if (py < screen_height - 1 && top < 255 && get_pixel_color(i, py + 1) == target) {
+                stack[++top] = {i, (uint16_t) (py + 1) };
+            }
+        }
+    }
 }
 
 void move_screen_up(uint16_t lines, Color fill_color)
