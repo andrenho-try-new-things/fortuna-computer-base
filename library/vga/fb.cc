@@ -58,6 +58,36 @@ void draw_from_byte(uint8_t byte, uint8_t n_bytes, uint16_t x, uint16_t y, Color
     }
 }
 
+void draw_line(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, Color color)
+{
+
+}
+
+void draw_rectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, Color color)
+{
+
+}
+
+void draw_rectangle_filled(uint16_t x, uint16_t y, uint16_t w, uint16_t h, Color color)
+{
+
+}
+
+void draw_ellipse(uint16_t x, uint16_t y, uint16_t w, uint16_t h, Color color)
+{
+
+}
+
+void draw_ellipse_filled(uint16_t x, uint16_t y, uint16_t w, uint16_t h, Color color)
+{
+
+}
+
+void fill_area(uint16_t x, uint16_t y, Color color)
+{
+
+}
+
 void move_screen_up(uint16_t lines, Color fill_color)
 {
     uint32_t sz = lines * vga::screen_width / 2;
@@ -68,21 +98,21 @@ void move_screen_up(uint16_t lines, Color fill_color)
     memset(&vga_data_array[vga_sz - sz], color_data, sz);
 }
 
-void draw_sprite(SpriteImage const& sprite, uint16_t x, uint16_t y, uint8_t framebuffer)
+void draw_image(Image const& image, uint16_t x, uint16_t y, uint8_t framebuffer)
 {
     const uint32_t fb_idx = framebuffer * ((screen_width * screen_height) >> 1);
 
     if ((x & 1) == 0) {
-        for (int m = 0; m < sprite.h; ++m) {
+        for (int m = 0; m < image.h; ++m) {
             const int pixel = ((screen_width * (y + m)) + x) ;
-            memcpy(&vga_data_array[fb_idx + (pixel>>1)], &sprite.data[m * (sprite.w >> 1)], sprite.w >> 1);
+            memcpy(&vga_data_array[fb_idx + (pixel>>1)], &image.data[m * (image.w >> 1)], image.w >> 1);
         }
     } else {
-        for (int m = 0; m < sprite.h; ++m) {
-            for (int n = 0; n < sprite.w; n += 2) {
-                const uint32_t idx = ((m * sprite.w) + n) >> 1;
-                inline_draw_pixel(x + n, y + m, (Color) (sprite.data[idx] & 0xf), framebuffer);
-                inline_draw_pixel(x + n + 1, y + m, (Color) ((sprite.data[idx] >> 4) & 0xf), framebuffer);
+        for (int m = 0; m < image.h; ++m) {
+            for (int n = 0; n < image.w; n += 2) {
+                const uint32_t idx = ((m * image.w) + n) >> 1;
+                inline_draw_pixel(x + n, y + m, (Color) (image.data[idx] & 0xf), framebuffer);
+                inline_draw_pixel(x + n + 1, y + m, (Color) ((image.data[idx] >> 4) & 0xf), framebuffer);
             }
         }
     }

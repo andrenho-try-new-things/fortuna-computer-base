@@ -67,17 +67,17 @@
   - [x] 640x240 mode
   - [x] Tiles and sprites
   - [ ] Drawing primitives
-    - [ ] Draw pixel
+    - [x] Draw pixel
     - [ ] Draw line
     - [ ] Draw rectangle (line/filled)
     - [ ] Draw ellipsis (line/filled)
     - [ ] Fill area
     - [ ] Draw image (with/without transparency)
+    - [ ] Draw character / text
   - [ ] Customizable fonts
 - [ ] USB
   - [ ] Mouse
   - [ ] Joystick
-- [ ] Wi-Fi
 
 ## Version 2.2
 
@@ -95,5 +95,6 @@
 - [ ] Revamp demo mode - create operating system-like
 - [ ] Add development tools
   - [ ] Demo program
+    - [ ] Wi-Fi
   - [ ] Pixelart tool
   - [ ] Sound editor

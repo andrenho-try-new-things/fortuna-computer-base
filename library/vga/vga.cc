@@ -267,7 +267,7 @@ void step()
 
         // add sprites
         for (uint16_t i = 0; i < sprite_sz; ++i)
-            fb::draw_sprite(*sprites[i].image, sprites[i].x, sprites[i].y, opposite_framebuffer);
+            fb::draw_image(*sprites[i].image, sprites[i].x, sprites[i].y, opposite_framebuffer);
 
         new_vsync = false;
     }

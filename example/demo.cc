@@ -200,6 +200,7 @@ void execute_command(const char* cmd)
         vga::text::print(R"(audio         play a small tune
 ascii         print the ascii table
 cls           clear the screen
+draw          draw some geometric shapes
 font NAME     sets the font (fortuna | ibm | vga | toshiba)
 led VAL       turns on/off the user panel led (0|1)
 longtext      print a longer Lorem Ipsum text
@@ -218,6 +219,10 @@ time          prints the current RTC time
     } else if (strcmp(cmd, "cls") == 0) {
         vga::text::clear_screen();
         vga::text::set_cursor(0, 0);
+    } else if (strcmp(cmd, "draw") == 0) {
+        vga::text::clear_screen();
+        vga::text::set_cursor(0, 0);
+        vga::fb::draw_line(3, 50, 13, 50, Color::White);
     } else if (strcmp(cmd, "longtext") == 0) {
         longtext();
     } else if (strcmp(cmd, "font") == 0) {
@@ -342,7 +347,7 @@ static uint8_t sprite_image[] = {
     0xff, 0xff, 0xff, 0xff,
 };
 
-static SpriteImage sprite_images[] = {
+static Image sprite_images[] = {
     {
         .w = 8,
         .h = 8,
