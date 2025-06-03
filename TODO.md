@@ -67,6 +67,12 @@
   - [x] 640x240 mode
   - [x] Tiles and sprites
   - [ ] Drawing primitives
+    - [ ] Draw pixel
+    - [ ] Draw line
+    - [ ] Draw rectangle (line/filled)
+    - [ ] Draw ellipsis (line/filled)
+    - [ ] Fill area
+    - [ ] Draw image (with/without transparency)
   - [ ] Customizable fonts
 - [ ] USB
   - [ ] Mouse
@@ -79,4 +85,15 @@
   - [ ] Multiple channels (?)
   - [ ] Samples using PIO (?)
   - [ ] Noise
+- [ ] Conditional compilation
+- [ ] Terminal mode
+- [ ] Automatic protocol
 - [ ] Github actions - generate uf2
+
+## Version 2.3
+
+- [ ] Revamp demo mode - create operating system-like
+- [ ] Add development tools
+  - [ ] Demo program
+  - [ ] Pixelart tool
+  - [ ] Sound editor
