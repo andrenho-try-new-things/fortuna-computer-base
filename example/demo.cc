@@ -364,11 +364,7 @@ static uint8_t sprite_image[] = {
 };
 
 static Image sprite_images[] = {
-    {
-        .w = 8,
-        .h = 8,
-        .data = sprite_image,
-    },
+    Image(8, 8, Color::Green, sprite_image),
 };
 
 static Sprite sprites[] = {

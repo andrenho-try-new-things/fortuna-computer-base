@@ -72,7 +72,7 @@
     - [x] Draw rectangle (line/filled)
     - [x] Draw ellipsis (line/filled)
     - [x] Fill area
-    - [ ] Draw image (with/without transparency)
+    - [x] Draw image (with/without transparency)
     - [ ] Draw character / text
   - [ ] Customizable fonts
 - [ ] USB

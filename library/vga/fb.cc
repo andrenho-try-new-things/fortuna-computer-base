@@ -350,7 +350,7 @@ void draw_image(Image const& image, uint16_t x, uint16_t y, uint8_t framebuffer)
 {
     const uint32_t fb_idx = framebuffer * ((screen_width * screen_height) >> 1);
 
-    if ((x & 1) == 0) {
+    if ((x & 1) == 0 && !image.has_transparency) {
         for (int m = 0; m < image.h; ++m) {
             const int pixel = ((screen_width * (y + m)) + x) ;
             memcpy(&vga_data_array[fb_idx + (pixel>>1)], &image.data[m * (image.w >> 1)], image.w >> 1);
@@ -359,8 +359,12 @@ void draw_image(Image const& image, uint16_t x, uint16_t y, uint8_t framebuffer)
         for (int m = 0; m < image.h; ++m) {
             for (int n = 0; n < image.w; n += 2) {
                 const uint32_t idx = ((m * image.w) + n) >> 1;
-                inline_draw_pixel(x + n, y + m, (Color) (image.data[idx] & 0xf), framebuffer);
-                inline_draw_pixel(x + n + 1, y + m, (Color) ((image.data[idx] >> 4) & 0xf), framebuffer);
+                Color color1 = (Color) (image.data[idx] & 0xf);
+                Color color2 = (Color) ((image.data[idx] >> 4) & 0xf);
+                if (image.has_transparency && image.transparent_color != color1)
+                    inline_draw_pixel(x + n, y + m, color1, framebuffer);
+                if (image.has_transparency && image.transparent_color != color2)
+                    inline_draw_pixel(x + n + 1, y + m, color2, framebuffer);
             }
         }
     }

@@ -20,7 +20,8 @@ pico_sdk_init()
 project(fortuna-io-board VERSION 2.0)
 
 add_library(${PROJECT_NAME} INTERFACE
-		vga/sprite.hh)
+		vga/sprite.hh
+		vga/color.hh)
 
 #
 # sources
@@ -29,6 +30,7 @@ add_library(${PROJECT_NAME} INTERFACE
 add_subdirectory(contrib/no-OS-FatFS-SD-SDIO-SPI-RPi-Pico/src)
 
 target_sources(${PROJECT_NAME} INTERFACE
+		${CMAKE_CURRENT_LIST_DIR}/vga/color.hh
 		${CMAKE_CURRENT_LIST_DIR}/vga/vga.hh
 		${CMAKE_CURRENT_LIST_DIR}/vga/vga.cc
 		${CMAKE_CURRENT_LIST_DIR}/vga/fb.cc

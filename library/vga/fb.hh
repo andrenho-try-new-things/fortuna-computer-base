@@ -3,12 +3,8 @@
 
 #include <cstdint>
 
+#include "color.hh"
 #include "sprite.hh"
-
-enum class Color : uint8_t {
-    Black = 0, NavyBlue, DarkGreen, Blue, Green, SkyBlue, Lime, Cyan,
-    Red, Magenta, DarkOrange, Violet, Orange, Pink, Yellow, White,
-};
 
 namespace vga::fb {
 
