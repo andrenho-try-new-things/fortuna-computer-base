@@ -64,10 +64,7 @@ static void draw_cursor()
 {
     auto [px, py] = cell_pos(cursor_x, cursor_y);
     Font* font = font_data[current_font];
-    const int font_idx = CURSOR_CHAR - font->first_char;
-
-    for (uint8_t y = 0; y < font->char_height; ++y)
-        fb::draw_from_byte(font->pixels(font_idx, y), font->char_width, px, py + y, bg_color, cursor_is_on ? Color::Lime : bg_color);
+    fb::draw_character(px, py, font, CURSOR_CHAR, bg_color, cursor_is_on ? Color::Lime : bg_color);
 }
 
 void init()
@@ -129,16 +126,10 @@ void print(uint8_t c, bool redraw)
     } else if (c == '\b') {
         if (cursor_x > 0) {
             --cursor_x;
-            for (uint8_t y = 0; y < font->char_height; ++y)
-                fb::draw_from_byte(font->pixels(' ' - font->first_char, y), font->char_width, px, py + y, bg_color, fg_color);
+            fb::draw_character(px, py, font, ' ', bg_color, fg_color);
         }
     } else {
-        int font_idx = c - font->first_char;
-        if (font_idx < 0 || c > font->last_char)
-            font_idx = MISSING_CHAR - font->first_char;
-        for (uint8_t y = 0; y < font->char_height; ++y)
-            fb::draw_from_byte(font->pixels(font_idx, y), font->char_width, px, py + y, bg_color, fg_color);
-
+        fb::draw_character(px, py, font, c, bg_color, fg_color);
         ++cursor_x;
     }
 

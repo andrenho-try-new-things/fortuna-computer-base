@@ -4,6 +4,7 @@
 #include <cstdint>
 
 #include "color.hh"
+#include "font.hh"
 #include "sprite.hh"
 
 namespace vga::fb {
@@ -20,10 +21,12 @@ void draw_rectangle_filled(uint16_t x, uint16_t y, uint16_t w, uint16_t h, Color
 void draw_ellipse(uint16_t x, uint16_t y, uint16_t w, uint16_t h, Color color);
 void draw_ellipse_filled(uint16_t x, uint16_t y, uint16_t w, uint16_t h, Color color);
 
+void draw_character(uint16_t x, uint16_t y, text::Font const* font, uint8_t ch, Color bg_color, Color fg_color);
+void draw_character(uint16_t x, uint16_t y, text::Font const* font, uint8_t ch, Color fg_color);
+
 void fill_area(uint16_t x, uint16_t y, Color color);
 
 void draw_image(Image const& image, uint16_t x, uint16_t y, uint8_t framebuffer=0);
-void draw_from_byte(uint8_t byte, uint8_t n_bytes, uint16_t x, uint16_t y, Color bg_color, Color fg_color);
 
 void move_screen_up(uint16_t lines, Color fill_color);
 

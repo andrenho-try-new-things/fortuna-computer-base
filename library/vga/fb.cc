@@ -60,11 +60,20 @@ Color get_pixel_color(uint16_t x, uint16_t y)
 }
 
 
-void draw_from_byte(uint8_t byte, uint8_t n_bytes, uint16_t x, uint16_t y, Color bg_color, Color fg_color)
+static void draw_from_byte(uint8_t byte, uint8_t n_bytes, uint16_t x, uint16_t y, Color bg_color, Color fg_color)
 {
     for (int m = 0; m < n_bytes; ++m) {
         uint8_t v = byte & (1 << (n_bytes - m - 1));
         inline_draw_pixel(x + m, y, v ? fg_color : bg_color);
+    }
+}
+
+static void draw_from_byte(uint8_t byte, uint8_t n_bytes, uint16_t x, uint16_t y, Color fg_color)
+{
+    for (int m = 0; m < n_bytes; ++m) {
+        uint8_t v = byte & (1 << (n_bytes - m - 1));
+        if (v)
+            inline_draw_pixel(x + m, y, fg_color);
     }
 }
 
@@ -368,6 +377,18 @@ void draw_image(Image const& image, uint16_t x, uint16_t y, uint8_t framebuffer)
             }
         }
     }
+}
+
+void draw_character(uint16_t px, uint16_t py, text::Font const* font, uint8_t ch, Color bg_color, Color fg_color)
+{
+    for (uint8_t y = 0; y < font->char_height; ++y)
+        draw_from_byte(font->pixels(ch - font->first_char, y), font->char_width, px, py + y, bg_color, fg_color);
+}
+
+void draw_character(uint16_t px, uint16_t py, text::Font const* font, uint8_t ch, Color fg_color)
+{
+    for (uint8_t y = 0; y < font->char_height; ++y)
+        draw_from_byte(font->pixels(ch - font->first_char, y), font->char_width, px, py + y, fg_color);
 }
 
 }

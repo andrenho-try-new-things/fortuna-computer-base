@@ -73,7 +73,7 @@
     - [x] Draw ellipsis (line/filled)
     - [x] Fill area
     - [x] Draw image (with/without transparency)
-    - [ ] Draw character / text
+    - [x] Draw character / text
   - [ ] Customizable fonts
 - [ ] USB
   - [ ] Mouse
