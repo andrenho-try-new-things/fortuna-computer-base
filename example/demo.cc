@@ -331,12 +331,43 @@ void create_music() {
     audio::set_music(music, sizeof(music) / sizeof music[0]);
 }
 
+static uint8_t sprite_image[] = {
+    0xff, 0xff, 0xff, 0xff,
+    0x4f, 0x44, 0x44, 0xf4,
+    0x4f, 0x44, 0x44, 0xf4,
+    0x4f, 0x44, 0x44, 0xf4,
+    0x4f, 0x44, 0x44, 0xf4,
+    0x4f, 0x44, 0x44, 0xf4,
+    0x4f, 0x44, 0x44, 0xf4,
+    0xff, 0xff, 0xff, 0xff,
+};
+
+static SpriteImage sprite_images[] = {
+    {
+        .w = 8,
+        .h = 8,
+        .data = sprite_image,
+    },
+};
+
+static Sprite sprites[] = {
+    {
+        .x = 41,
+        .y = 40,
+        .image = &sprite_images[0],
+    },
+};
+
 int main()
 {
     fortuna::init();
     // sleep_ms(3000);
 
     create_music();
+
+    vga::set_sprites(sprites, 1);
+    repeating_timer_t r;
+    add_repeating_timer_ms(10, [](repeating_timer_t *) { sprites[0].x++; return true; }, nullptr, &r);
 
     vga::text::print("Current date/time is ", false); print_date(); vga::text::print(".\n", false);
     vga::text::print("Type 'help' for help.\n\n");

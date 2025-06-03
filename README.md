@@ -13,8 +13,9 @@ The board and accompanying firmware library provides:
 
  - 1 Raspberry Pi Pico 2 W core available for user implementation (3.8 MB flash and 350 kB RAM free)
  - USB power with on/off switch
- - VGA output at (640x480) in 16 colors
- - VGA text mode with 2 different fonts (80x35)
+ - VGA output at 640x480, 640x240 or 320x240 in 16 colors
+ - special VGA mode at 320x240 with a background framebuffer + sprites (mode 4)
+ - VGA text with 4 different fonts
  - support for USB keyboard
  - SD Card storage (using the libraries and [no-OS-FatFS-SD-SDIO-SPI-RPi-Pico](https://github.com/carlk3/no-OS-FatFS-SD-SDIO-SPI-RPi-Pico) and [FatFs](https://elm-chan.org/fsw/ff/))
  - Real Time (calendar) clock with long term storage, battery operated (CR2032)

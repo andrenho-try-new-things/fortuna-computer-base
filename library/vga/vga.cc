@@ -58,6 +58,9 @@ static volatile bool new_vsync = false;
 uint16_t screen_width = 640;
 uint16_t screen_height = 480;
 
+static Sprite*  sprites = nullptr;
+static uint16_t sprite_sz = 0;
+
 static void dma_handler()   // DMA handler is called at the end of each HSYNC
 {
     // Clear the interrupt request for DMA control channel
@@ -263,10 +266,17 @@ void step()
         memcpy(&vga_data_array[FRAMEBUFFER_SZ * opposite_framebuffer], &vga_data_array[0], FRAMEBUFFER_SZ);
 
         // add sprites
-        // TODO
+        for (uint16_t i = 0; i < sprite_sz; ++i)
+            fb::draw_sprite(*sprites[i].image, sprites[i].x, sprites[i].y, opposite_framebuffer);
 
         new_vsync = false;
     }
+}
+
+void set_sprites(Sprite* sprites, uint16_t sz)
+{
+    vga::sprites = sprites;
+    vga::sprite_sz = sz;
 }
 
 }

@@ -65,12 +65,13 @@
 
 - [x] VGA mode 2 at lower resolution (320x240)
   - [x] 640x240 mode
-  - [ ] Tiles and sprites
+  - [x] Tiles and sprites
   - [ ] Drawing primitives
-  - [ ] Optional double buffer
+  - [ ] Customizable fonts
 - [ ] USB
   - [ ] Mouse
   - [ ] Joystick
+- [ ] Wi-Fi
 
 ## Version 2.2
 
