@@ -76,9 +76,10 @@
     - [x] Draw character / text
   - [x] Customizable fonts
 - [ ] USB
-  - [ ] Mouse
-    - [ ] Pointer
+  - [x] Mouse
+    - [x] Pointer
   - [ ] Joystick
+- [ ] Faster memcpy
 
 ## Version 2.2
 

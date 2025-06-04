@@ -73,7 +73,7 @@ static uint16_t mouse_x = 0, mouse_y = 0;
 static uint8_t vga_data_array_mouse[640 * CURSOR_HEIGHT / 2];
 bool show_mouse_pointer = false;
 
-static inline __attribute__((always_inline)) uint32_t pixel_idx(uint16_t x, uint16_t y, uint8_t framebuffer=0)
+static __attribute__((always_inline)) inline uint32_t pixel_idx(uint16_t x, uint16_t y, uint8_t framebuffer=0)
 {
     switch (current_mode) {
         case Mode::V_640x480:
@@ -104,13 +104,57 @@ static void dma_handler()   // DMA handler is called at the end of each HSYNC
         new_vsync = true;
     }
 
-    int16_t mouse_diff = current_scanline - (int) mouse_y;
-    if (show_mouse_pointer && mouse_diff >= 0 && mouse_diff < CURSOR_HEIGHT)
-        address_pointer = &vga_data_array_mouse[pixel_idx(0, mouse_diff)];
-    else
+    int16_t mouse_diff = current_scanline / (screen_height == 240 ? 2 : 1) - (int) mouse_y;
+    if (show_mouse_pointer && mouse_diff >= 0 && mouse_diff < CURSOR_HEIGHT) {
+        address_pointer = &vga_data_array_mouse[mouse_diff * (screen_width >> 1)];
+    } else {
         address_pointer = &vga_data_array[pixel_idx(0, current_scanline, current_framebuffer)];
+    }
 }
 
+static const uint16_t __in_flash() mouse_pointer[] = {
+    0b1111101010101010,
+    0b1100111010101010,
+    0b1100001110101010,
+    0b1100000011101010,
+    0b1100000000111010,
+    0b1100001111101010,
+    0b1100111010101010,
+    0b1111101010101010,
+};
+
+static void update_mouse_pointer()
+{
+    if (show_mouse_pointer) {
+        mouse_x = MIN(MAX(mouse_x + next_mouse_x, 0), screen_width - 1);
+        mouse_y = MIN(MAX(mouse_y + next_mouse_y, 0), screen_height - 1);
+        next_mouse_x = 0;
+        next_mouse_y = 0;
+
+        // copy mouse lines onto mouse buffer
+        memcpy(vga_data_array_mouse, &vga_data_array[pixel_idx(0, mouse_y * (screen_height == 240 ? 2 : 1), current_framebuffer)], (CURSOR_HEIGHT * screen_width) >> 1);
+
+        // draw mouse
+        auto draw = [](uint16_t x, uint16_t y, uint8_t color) {
+            const int pixel = ((screen_width * y) + x) ;
+            if (pixel & 1)
+                vga_data_array_mouse[pixel>>1] = (vga_data_array_mouse[pixel>>1] & TOPMASK) | (color << 4) ;
+            else
+                vga_data_array_mouse[pixel>>1] = (vga_data_array_mouse[pixel>>1] & BOTTOMMASK) | color;
+        };
+
+        // add mouse to mouse array
+        for (uint8_t x = 0; x < 8; ++x) {
+            for (uint8_t y = 0; y < 8; ++y) {
+                uint8_t color = (mouse_pointer[y] >> (14 - (x * 2))) & 0b11;
+                if (color == 0b11)
+                   draw(mouse_x + x, y, (uint8_t) Color::Black);
+                else if (color == 0b00)
+                    draw(mouse_x + x, y, (uint8_t) Color::White);
+            }
+        }
+    }
+}
 
 static void init_dma()
 {
@@ -289,23 +333,7 @@ void init()
     printf("VGA initialized.\n");
 }
 
-void update_mouse_pointer()
-{
-    if (show_mouse_pointer) {
-        mouse_x = MIN(MAX(mouse_x + next_mouse_x, 0), screen_width - 1);
-        mouse_y = MIN(MAX(mouse_y + next_mouse_y, 0), screen_height - 1);
-        next_mouse_x = 0;
-        next_mouse_y = 0;
-
-        // copy mouse lines onto mouse buffer
-        memcpy(vga_data_array_mouse, &vga_data_array[pixel_idx(0, mouse_y, current_framebuffer)], (CURSOR_HEIGHT * screen_width) >> 1);
-
-        // add mouse to mouse array
-        vga_data_array_mouse[mouse_x >> 1] = 0xff;
-    }
-}
-
-void copy_sprites_vsync()
+static void copy_sprites_vsync()
 {
     if (current_mode == Mode::V_SPRITES) {
         // copy framebuffer 0 on top of current framebuffer
@@ -339,6 +367,7 @@ void update_mouse_position(int8_t x, int8_t y)
 {
     next_mouse_x = x;
     next_mouse_y = y;
+    printf("%d, %d\n", mouse_x + x, mouse_y + y);
 }
 
 }
