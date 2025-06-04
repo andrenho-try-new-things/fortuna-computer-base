@@ -10,12 +10,12 @@
 
 namespace vga::text {
 
-enum class font: uint8_t { Fortuna, IBM, VGA, Toshiba };
-
 void init();
 
 void clear_screen();
-void set_font(font f);
+void set_font(Font const* font);
+
+Font const* default_font();
 
 void print(uint8_t c, bool redraw=true);
 void print(const char* text, bool redraw=true);

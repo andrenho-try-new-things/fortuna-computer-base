@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include <fortuna.hh>
+#include "toshiba_font.hh"
 
 static char command[255] = "";
 
@@ -217,7 +218,7 @@ void execute_command(const char* cmd)
 ascii         print the ascii table
 cls           clear the screen
 draw          draw some geometric shapes
-font NAME     sets the font (fortuna | ibm | vga | toshiba)
+font NAME     sets the font (default | custom)
 led VAL       turns on/off the user panel led (0|1)
 longtext      print a longer Lorem Ipsum text
 mem           print how much RAM is available
@@ -242,21 +243,14 @@ time          prints the current RTC time
     } else if (strcmp(cmd, "longtext") == 0) {
         longtext();
     } else if (strcmp(cmd, "font") == 0) {
-        vga::text::print("font [fortuna | ibm | vga | toshiba]\n");
-    } else if (strcmp(cmd, "font fortuna") == 0) {
-        vga::text::set_font(vga::text::font::Fortuna);
-        vga::text::print("Font 'fortuna' selected.\n");
-    } else if (strcmp(cmd, "font ibm") == 0) {
-        vga::text::set_font(vga::text::font::IBM);
-        vga::text::print("Font 'ibm' selected.\n");
-    } else if (strcmp(cmd, "font vga") == 0) {
-        vga::text::set_font(vga::text::font::VGA);
-        vga::text::print("Font 'vga' selected.\n");
-    } else if (strcmp(cmd, "font toshiba") == 0) {
-        vga::text::set_font(vga::text::font::Toshiba);
-        vga::text::print("Font 'toshiba' selected.\n");
-    } else if (strcmp(cmd, "font") == 0) {
-        vga::text::print("font NUMBER\n");
+        vga::text::print("font [default | custom]\n");
+    } else if (strcmp(cmd, "font default") == 0) {
+        vga::text::set_font(vga::text::default_font());
+        vga::text::print("Font 'default' selected.\n");
+    } else if (strcmp(cmd, "font custom") == 0) {
+        static const toshiba_font f;
+        vga::text::set_font(&f);
+        vga::text::print("Font 'custom' selected. This font is provided by the application itself.\n");
     } else if (strcmp(cmd, "sdcard") == 0) {
         sdcard();
     } else if (strcmp(cmd, "led") == 0) {

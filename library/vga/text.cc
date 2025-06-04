@@ -7,20 +7,12 @@
 #include "fb.hh"
 #include "font.hh"
 #include "vga.hh"
-#include "fontgen/ibm_font.hh"
 #include "fontgen/fortuna_font.hh"
-#include "fontgen/vga_font.hh"
-#include "fontgen/toshiba_font.hh"
-
-static fortuna_font default_font;
-static ibm_font font_ibm;
-static vga_font font_vga;
-static toshiba_font font_toshiba;
 
 namespace vga::text {
 
-static Font*   font_data[] { &default_font, &font_ibm, &font_vga, &font_toshiba };
-static uint8_t current_font = 0;
+static const fortuna_font font_default;
+static Font const* current_font = default_font();
 
 static uint16_t cursor_x = 0;
 static uint16_t cursor_y = 0;
@@ -41,35 +33,25 @@ static constexpr uint8_t V_BORDER = 10;
 
 static std::pair<uint16_t, uint16_t> cell_pos(uint16_t cell_x, uint16_t cell_y)
 {
-    Font* font = font_data[current_font];
-    if (!font)
-        return { 0, 0 };
-
-    const int w_border = (vga::screen_width) / 2 - (columns * font->char_width / 2);
-
-    return { w_border + (cell_x * font->char_width), V_BORDER + (cell_y * font->char_height) };
+    const int w_border = (vga::screen_width) / 2 - (columns * current_font->char_width / 2);
+    return { w_border + (cell_x * current_font->char_width), V_BORDER + (cell_y * current_font->char_height) };
 }
 
 static void line_feed()
 {
-    Font* font = font_data[current_font];
-    if (!font)
-        return;
-
-    fb::move_screen_up(font->char_height, bg_color);
+    fb::move_screen_up(current_font->char_height, bg_color);
     fb::clear_lines(0, V_BORDER, bg_color);
 }
 
 static void draw_cursor()
 {
     auto [px, py] = cell_pos(cursor_x, cursor_y);
-    Font* font = font_data[current_font];
-    fb::draw_character(px, py, font, CURSOR_CHAR, bg_color, cursor_is_on ? Color::Lime : bg_color);
+    fb::draw_character(px, py, current_font, CURSOR_CHAR, bg_color, cursor_is_on ? Color::Lime : bg_color);
 }
 
 void init()
 {
-    set_font(font::Fortuna);
+    set_font(default_font());
 
     add_repeating_timer_ms(100, [](auto*) {
         --cursor_counter;
@@ -89,34 +71,30 @@ void clear_screen()
 
 void recalculate_matrix_size()
 {
-    Font* font = font_data[current_font];
-    if (font) {
-        columns = (vga::screen_width / font->char_width) - 1;
-        if (columns > 80)
-            columns = 80;
-        rows = (vga::screen_height - 2 * V_BORDER) / font->char_height;
-    }
+    columns = (vga::screen_width / current_font->char_width) - 1;
+    if (columns > 80)
+        columns = 80;
+    rows = (vga::screen_height - 2 * V_BORDER) / current_font->char_height;
 }
 
-void set_font(font f)
+void set_font(Font const* f)
 {
-    if ((uint8_t) f < sizeof(font_data) / sizeof(font_data[0])) {
-        clear_screen();
-        fb::clear(bg_color);
-        current_font = (uint8_t) f;
-        Font* font = font_data[(uint8_t) f];
-        if (font) {
-            recalculate_matrix_size();
-            clear_screen();
-            set_cursor(0, 0);
-        }
-    }
+    clear_screen();
+    fb::clear(bg_color);
+    current_font = f;
+    recalculate_matrix_size();
+    clear_screen();
+    set_cursor(0, 0);
+}
+
+Font const* default_font()
+{
+    return &font_default;
 }
 
 void print(uint8_t c, bool redraw)
 {
     auto [px, py] = cell_pos(cursor_x, cursor_y);
-    Font* font = font_data[current_font];
 
     if (c == 10) {
         cursor_is_on = false;
@@ -126,10 +104,10 @@ void print(uint8_t c, bool redraw)
     } else if (c == '\b') {
         if (cursor_x > 0) {
             --cursor_x;
-            fb::draw_character(px, py, font, ' ', bg_color, fg_color);
+            fb::draw_character(px, py, current_font, ' ', bg_color, fg_color);
         }
     } else {
-        fb::draw_character(px, py, font, c, bg_color, fg_color);
+        fb::draw_character(px, py, current_font, c, bg_color, fg_color);
         ++cursor_x;
     }
 

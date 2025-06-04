@@ -13,7 +13,8 @@ add_subdirectory(../library build)
 add_compile_options(-O3)
 
 add_executable(${CMAKE_PROJECT_NAME}
-    demo.cc)
+    demo.cc
+    toshiba_font.hh)
 
 target_link_libraries(${CMAKE_PROJECT_NAME}
     fortuna-io-board)

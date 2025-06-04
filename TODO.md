@@ -66,7 +66,7 @@
 - [x] VGA mode 2 at lower resolution (320x240)
   - [x] 640x240 mode
   - [x] Tiles and sprites
-  - [ ] Drawing primitives
+  - [x] Drawing primitives
     - [x] Draw pixel
     - [x] Draw line
     - [x] Draw rectangle (line/filled)

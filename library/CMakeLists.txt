@@ -38,6 +38,7 @@ target_sources(${PROJECT_NAME} INTERFACE
 		${CMAKE_CURRENT_LIST_DIR}/vga/text.cc
 		${CMAKE_CURRENT_LIST_DIR}/vga/text.hh
 		${CMAKE_CURRENT_LIST_DIR}/vga/font.hh
+		${CMAKE_CURRENT_LIST_DIR}/vga/fontgen/fortuna_font.hh
 		${CMAKE_CURRENT_LIST_DIR}/vga/sprite.hh
 		${CMAKE_CURRENT_LIST_DIR}/usb/usb.cc
 		${CMAKE_CURRENT_LIST_DIR}/usb/usb.hh
