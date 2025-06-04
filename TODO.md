@@ -78,7 +78,6 @@
 - [ ] USB
   - [x] Mouse
     - [x] Pointer
-  - [ ] Joystick
 - [ ] Faster memcpy
 
 ## Version 2.2
@@ -87,6 +86,7 @@
   - [ ] Multiple channels (?)
   - [ ] Samples using PIO (?)
   - [ ] Noise
+- [ ] Joystick
 - [ ] Conditional compilation
 - [ ] Terminal mode
 - [ ] Automatic protocol
