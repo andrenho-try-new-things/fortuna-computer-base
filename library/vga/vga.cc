@@ -367,7 +367,6 @@ void update_mouse_position(int8_t x, int8_t y)
 {
     next_mouse_x = x;
     next_mouse_y = y;
-    printf("%d, %d\n", mouse_x + x, mouse_y + y);
 }
 
 }
