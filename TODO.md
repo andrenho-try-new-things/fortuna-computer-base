@@ -74,9 +74,10 @@
     - [x] Fill area
     - [x] Draw image (with/without transparency)
     - [x] Draw character / text
-  - [ ] Customizable fonts
+  - [x] Customizable fonts
 - [ ] USB
   - [ ] Mouse
+    - [ ] Pointer
   - [ ] Joystick
 
 ## Version 2.2

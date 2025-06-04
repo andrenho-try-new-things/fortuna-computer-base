@@ -1,9 +1,10 @@
 #include "usb.hh"
 
-#include <keyboard.hh>
+#include <tusb.h>
+#include <bsp/board.h>
 
-#include "tusb.h"
-#include "bsp/board.h"
+#include "mouse.hh"
+#include "keyboard.hh"
 
 namespace usb {
 
@@ -49,11 +50,11 @@ void tuh_hid_mount_cb(uint8_t dev_addr, uint8_t instance, uint8_t const* desc_re
     uint8_t const itf_protocol = tuh_hid_interface_protocol(dev_addr, instance);
     if (itf_protocol == HID_ITF_PROTOCOL_KEYBOARD)
         usb::keyboard::init(dev_addr, instance);
+    else if (itf_protocol == HID_ITF_PROTOCOL_MOUSE)
+        usb::mouse::init(dev_addr, instance);
 
-    if(tuh_hid_interface_protocol(dev_addr, instance) == HID_ITF_PROTOCOL_KEYBOARD) {
-        if (!tuh_hid_receive_report(dev_addr, instance)) {
-            printf("Error: cannot request to receive report\r\n");
-        }
+    if (!tuh_hid_receive_report(dev_addr, instance)) {
+        printf("Error: cannot request to receive report\r\n");
     }
 }
 
@@ -68,8 +69,11 @@ void tuh_hid_report_received_cb(uint8_t dev_addr, uint8_t instance, uint8_t cons
 
     switch (itf_protocol) {
         case HID_ITF_PROTOCOL_KEYBOARD:
-                usb::keyboard::process_report((hid_keyboard_report_t const*) report);
-                break;
+            usb::keyboard::process_report((hid_keyboard_report_t const*) report);
+            break;
+        case HID_ITF_PROTOCOL_MOUSE:
+            usb::mouse::process_report((hid_mouse_report_t const*) report);
+            break;
         default:
             break;
     }
