@@ -2,6 +2,7 @@
 #define USB_HH
 
 #include "keyboard.hh"
+#include "mouse.hh"
 
 namespace usb {
 

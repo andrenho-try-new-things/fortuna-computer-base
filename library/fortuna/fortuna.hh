@@ -20,11 +20,12 @@ struct Config {
 };
 
 struct __attribute__((packed)) Event {
-    enum class Type : uint8_t { UserPanel, Keyboard, External };
+    enum class Type : uint8_t { UserPanel, Keyboard, Mouse, External };
     Type type     : 8;
     union {
         user::Event          user;
         usb::keyboard::Event key;
+        usb::mouse::Event    mouse;
         external::Buffer     external;
     };
 };

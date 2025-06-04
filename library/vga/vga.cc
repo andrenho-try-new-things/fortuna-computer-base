@@ -37,7 +37,7 @@ namespace vga {
 uint8_t* vga_data_array;
 static void* address_pointer = nullptr;
 
-static bool first_setup = true;
+// DMA channels and PIO program offsets
 static int rgb_chan_0, rgb_chan_1;
 static uint rgb_offset, vsync_offset, hsync_offset;
 
@@ -46,20 +46,47 @@ constexpr uint HSYNC_SM = 0;
 constexpr uint VSYNC_SM = 1;
 constexpr uint RGB_SM = 2;
 
-static int      current_scanline = 0;
-static uint32_t current_frame = 0;
+// current cannon location
+static uint16_t current_scanline = 0;
 static uint8_t  current_framebuffer = 0;
+static volatile bool new_vsync = false;
 
+// framebuffer size in mode 4
 constexpr uint32_t FRAMEBUFFER_SZ = 320 * 240 / 2;
 
+// current state
 static Mode current_mode = Mode::V_640x480;
 static pio_program const* current_rgb_program = nullptr;
-static volatile bool new_vsync = false;
+
+// current screen size
 uint16_t screen_width = 640;
 uint16_t screen_height = 480;
 
+// sprites
 static Sprite*  sprites = nullptr;
 static uint16_t sprite_sz = 0;
+
+// mouse location
+static constexpr uint8_t CURSOR_HEIGHT = 8;
+static int8_t next_mouse_x = 0, next_mouse_y = 0;
+static uint16_t mouse_x = 0, mouse_y = 0;
+static uint8_t vga_data_array_mouse[640 * CURSOR_HEIGHT / 2];
+bool show_mouse_pointer = false;
+
+static inline __attribute__((always_inline)) uint32_t pixel_idx(uint16_t x, uint16_t y, uint8_t framebuffer=0)
+{
+    switch (current_mode) {
+        case Mode::V_640x480:
+            return (640 >> 1) * y + (x >> 1);
+        case Mode::V_640x240:
+            return (640 >> 1) * (y >> 1) + (x >> 1);
+        case Mode::V_320x240:
+            return (320 >> 1) * (y >> 1) + (x >> 1);
+        case Mode::V_SPRITES:
+            return (320 >> 1) * (y >> 1) + (x >> 1) + (framebuffer * FRAMEBUFFER_SZ);
+    }
+    return 0;
+}
 
 static void dma_handler()   // DMA handler is called at the end of each HSYNC
 {
@@ -70,18 +97,18 @@ static void dma_handler()   // DMA handler is called at the end of each HSYNC
     current_scanline++;                  // new current scanline
     if (current_scanline >= 480) {       // last scanline?
         current_scanline = 0;            // restart scanline
-        current_frame++;                 // increment frame counter
 
-        if (current_mode == Mode::V_SPRITES) {
+        if (current_mode == Mode::V_SPRITES)
             current_framebuffer = (current_framebuffer == 1) ? 2 : 1;
-            new_vsync = true;
-        }
+
+        new_vsync = true;
     }
 
-    if (current_mode == Mode::V_640x480)
-        address_pointer = &vga_data_array[(screen_width >> 1) * current_scanline];
+    int16_t mouse_diff = current_scanline - (int) mouse_y;
+    if (show_mouse_pointer && mouse_diff >= 0 && mouse_diff < CURSOR_HEIGHT)
+        address_pointer = &vga_data_array_mouse[pixel_idx(0, mouse_diff)];
     else
-        address_pointer = &vga_data_array[(screen_width >> 1) * (current_scanline >> 1) + (current_framebuffer * FRAMEBUFFER_SZ)];
+        address_pointer = &vga_data_array[pixel_idx(0, current_scanline, current_framebuffer)];
 }
 
 
@@ -175,6 +202,10 @@ static void _set_mode(Mode mode)
     vga_data_array = (uint8_t *) calloc(1, screen_width * screen_height / 2 * (mode == Mode::V_SPRITES ? 3 : 1));
     address_pointer = &vga_data_array[0];
 
+    // update mouse pos
+    mouse_x = MIN(mouse_x, screen_width - 1);
+    mouse_y = MIN(mouse_y, screen_height - 1);
+
     // replace RGB PIO program
     pio_remove_program(pio0, current_rgb_program, rgb_offset);
     rgb_offset = pio_add_program(pio0, new_program);
@@ -258,16 +289,41 @@ void init()
     printf("VGA initialized.\n");
 }
 
-void step()
+void update_mouse_pointer()
 {
-    if (new_vsync && current_mode == Mode::V_SPRITES) {
+    if (show_mouse_pointer) {
+        mouse_x = MIN(MAX(mouse_x + next_mouse_x, 0), screen_width - 1);
+        mouse_y = MIN(MAX(mouse_y + next_mouse_y, 0), screen_height - 1);
+        next_mouse_x = 0;
+        next_mouse_y = 0;
+
+        // copy mouse lines onto mouse buffer
+        memcpy(vga_data_array_mouse, &vga_data_array[pixel_idx(0, mouse_y, current_framebuffer)], (CURSOR_HEIGHT * screen_width) >> 1);
+
+        // add mouse to mouse array
+        vga_data_array_mouse[mouse_x >> 1] = 0xff;
+    }
+}
+
+void copy_sprites_vsync()
+{
+    if (current_mode == Mode::V_SPRITES) {
         // copy framebuffer 0 on top of current framebuffer
         uint8_t opposite_framebuffer = (current_framebuffer == 1) ? 2 : 1;
-        memcpy(&vga_data_array[FRAMEBUFFER_SZ * opposite_framebuffer], &vga_data_array[0], FRAMEBUFFER_SZ);
+        memcpy(&vga_data_array[pixel_idx(0, 0, opposite_framebuffer)], &vga_data_array[0], FRAMEBUFFER_SZ);
 
         // add sprites
         for (uint16_t i = 0; i < sprite_sz; ++i)
             fb::draw_image(*sprites[i].image, sprites[i].x, sprites[i].y, opposite_framebuffer);
+    }
+}
+
+void step()
+{
+    if (new_vsync) {
+
+        update_mouse_pointer();
+        copy_sprites_vsync();
 
         new_vsync = false;
     }
@@ -277,6 +333,12 @@ void set_sprites(Sprite* sprites, uint16_t sz)
 {
     vga::sprites = sprites;
     vga::sprite_sz = sz;
+}
+
+void update_mouse_position(int8_t x, int8_t y)
+{
+    next_mouse_x = x;
+    next_mouse_y = y;
 }
 
 }

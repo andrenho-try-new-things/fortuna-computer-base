@@ -372,6 +372,7 @@ static Sprite sprites[] = {
 int main()
 {
     fortuna::init();
+    vga::show_mouse_pointer = true;
 
     create_music();
 
