@@ -80,7 +80,15 @@
     - [x] Pointer
 - [ ] Faster memcpy
 
-## Version 2.2
+# Version 2.2
+
+- [ ] Terminal mode
+- [ ] Automatic protocol
+  - [ ] SPI
+  - [ ] 4-bit
+- [ ] Emulator (?)
+
+## Version 2.3
 
 - [ ] Advanced audio
   - [ ] Multiple channels (?)
@@ -88,8 +96,6 @@
   - [ ] Noise
 - [ ] Joystick
 - [ ] Conditional compilation
-- [ ] Terminal mode
-- [ ] Automatic protocol
 - [ ] Github actions - generate uf2
 
 ## Version 2.3
@@ -100,3 +106,12 @@
     - [ ] Wi-Fi
   - [ ] Pixelart tool
   - [ ] Sound editor
+
+# Ideas for version 2
+
+- Overclock
+- 8-bit VGA
+  - Mode 1: 640x480 - 16 colors
+  - Mode 2: 320x240 - 256 colors + sprites
+- 2nd Pi Pico just for audio
+  - load samples from SDCard
