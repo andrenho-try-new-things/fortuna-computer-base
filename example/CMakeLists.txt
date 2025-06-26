@@ -21,10 +21,10 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
 
 pico_add_extra_outputs(${CMAKE_PROJECT_NAME})
 
-# upload remotely - see https://github.com/andrenho/pico-pi-upload-server
+# upload remotely - see https://github.com/andrenho/remoteprog
 
 add_custom_target(upload-remote
-        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/pico-pi-upload-client.sh $ENV{REMOTE_URL} rp2350 ${CMAKE_PROJECT_NAME}.elf
+        COMMAND remoteprog upload ${CMAKE_PROJECT_NAME}.elf
         DEPENDS ${CMAKE_PROJECT_NAME}
         COMMENT "Uploading remotely..."
         VERBATIM
