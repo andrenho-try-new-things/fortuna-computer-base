@@ -82,7 +82,8 @@
 
 # Version 2.2
 
-- [ ] Terminal mode
+- [ ] Terminal
+  - [ ] Terminal via UART
 - [ ] Automatic protocol
   - [ ] SPI
   - [ ] 4-bit
