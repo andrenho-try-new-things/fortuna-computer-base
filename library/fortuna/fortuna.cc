@@ -96,3 +96,6 @@ uint32_t free_ram()
     return total_ram() - m.uordblks;
 }
 
+void fortuna::finalize()
+{
+}

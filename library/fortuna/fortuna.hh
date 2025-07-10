@@ -31,6 +31,7 @@ struct __attribute__((packed)) Event {
 };
 
 void init(Config const& config={});
+void finalize();
 
 bool add_event(Event const& event);
 bool next_event(Event* event);

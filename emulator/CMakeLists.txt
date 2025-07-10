@@ -7,8 +7,11 @@ find_package(SDL3 REQUIRED)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(fiob-emulator main.cc)
+add_library(fiob-emulator fortuna/fortuna.cc
+        vga/vga.cc)
+add_executable(fiob-emulator-demo main.cc)
 
 target_link_libraries(fiob-emulator PRIVATE SDL3::SDL3)
+target_link_libraries(fiob-emulator-demo PRIVATE fiob-emulator)
 
-target_include_directories(fiob-emulator PRIVATE ${SDL3_INCLUDE_DIRS})
+target_include_directories(fiob-emulator PUBLIC ${SDL3_INCLUDE_DIRS} ../library/fortuna include)
